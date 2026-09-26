@@ -939,3 +939,49 @@ button{cursor:pointer}
     flex-direction:column;
   }
 }
+
+
+/* Ajuste fino da marca de acessibilidade no mobile */
+@media(max-width:700px){
+  .brand img{
+    width:34px;
+    height:34px;
+    border-radius:8px;
+  }
+  .brand strong{font-size:18px}
+  .brand small{
+    font-size:10px;
+    letter-spacing:.14em;
+  }
+  .hero-visual{
+    min-height:220px;
+    padding:22px;
+  }
+  .hero-symbol{
+    width:88px;
+    height:88px;
+    border-radius:18px;
+  }
+  .hero-symbol img{
+    width:62px;
+    height:62px;
+  }
+  .hero-visual p{
+    left:22px;
+    bottom:18px;
+    font-size:30px;
+    line-height:1.02;
+  }
+}
+@media(max-width:420px){
+  .hero-symbol{
+    width:76px;
+    height:76px;
+    border-radius:16px;
+  }
+  .hero-symbol img{
+    width:54px;
+    height:54px;
+  }
+  .hero-visual p{font-size:26px}
+}
