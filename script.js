@@ -49,7 +49,7 @@ form?.addEventListener('submit',e=>{
   plainSummary='SOLICITAÇÃO DE ORÇAMENTO — GEB INCLUSÃO\n\n'+rows.map(([k,v])=>k+': '+v).join('\n');
   const encoded=encodeURIComponent(plainSummary);
   whatsapp.href='https://wa.me/551121105473?text='+encoded;
-  email.href='mailto:contato@grupoeduardabispo.com.br?subject='+encodeURIComponent('Solicitação de orçamento — Intérprete de Libras')+'&body='+encoded;
+  email.href='mailto:empresarial@grupoeduardabispo.com.br?subject='+encodeURIComponent('Solicitação de orçamento — Intérprete de Libras')+'&body='+encoded;
   result.hidden=false;
   result.scrollIntoView({behavior:'smooth',block:'center'});
 });
