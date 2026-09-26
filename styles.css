@@ -641,3 +641,121 @@ button{cursor:pointer}
   .channel-grid{grid-template-columns:1fr}
   .accessible-solutions-grid{grid-template-columns:1fr}
 }
+
+
+/* Diretório expansível de tecnologias de Impacto Social */
+.impact-feature-grid-three{
+  grid-template-columns:repeat(3,1fr);
+}
+.technology-initiative-card{
+  background:#eef3fb;
+}
+.solutions-directory{
+  margin-top:54px;
+  background:white;
+  color:var(--ink);
+}
+.solutions-directory-head{
+  display:grid;
+  grid-template-columns:1fr .75fr;
+  gap:30px;
+  align-items:end;
+  padding:30px;
+  border-bottom:1px solid var(--line);
+}
+.solutions-directory-head h3{
+  margin:10px 0 0;
+  font-family:"Inter Tight",sans-serif;
+  font-size:clamp(34px,4vw,54px);
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.solution-search{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.solution-search span{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.solution-search input{
+  width:100%;
+  padding:14px 16px;
+  border:1px solid #ccd2da;
+  background:white;
+  color:var(--ink);
+  outline:none;
+}
+.solution-search input:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(0,48,135,.08);
+}
+.solutions-table-wrap{
+  overflow-x:auto;
+}
+.solutions-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:860px;
+}
+.solutions-table th,
+.solutions-table td{
+  padding:18px 20px;
+  text-align:left;
+  vertical-align:top;
+  border-bottom:1px solid var(--line);
+}
+.solutions-table th{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+  background:#f7f8fa;
+}
+.solutions-table td{
+  font-size:14px;
+  line-height:1.55;
+}
+.solutions-table td:first-child{width:22%}
+.solutions-table td:nth-child(2){width:20%}
+.solutions-table td:nth-child(3){width:43%}
+.solutions-table td:nth-child(4){width:15%}
+.solution-status{
+  display:inline-block;
+  padding:7px 9px;
+  background:#eef3fb;
+  color:var(--navy);
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.solutions-empty{
+  margin:0;
+  padding:30px;
+  color:var(--muted);
+}
+.solutions-origin-note{
+  display:grid;
+  grid-template-columns:.4fr 1.6fr;
+  gap:30px;
+  padding:28px 30px;
+  background:#f7f8fa;
+}
+.solutions-origin-note strong{
+  font-family:"Inter Tight",sans-serif;
+  font-size:24px;
+}
+.solutions-origin-note p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.65;
+}
+@media(max-width:1000px){
+  .impact-feature-grid-three{grid-template-columns:1fr}
+  .solutions-directory-head,
+  .solutions-origin-note{grid-template-columns:1fr}
+}
