@@ -759,3 +759,183 @@ button{cursor:pointer}
   .solutions-directory-head,
   .solutions-origin-note{grid-template-columns:1fr}
 }
+
+
+/* Refinamento mobile de tipografia e espaçamento */
+@media(max-width:700px){
+  .hero h1{
+    font-size:clamp(42px,11vw,58px);
+    line-height:.98;
+  }
+
+  .section-heading h2,
+  .quote-intro h2,
+  .quote-bridge h2,
+  .quote-page-hero h1,
+  .quote-development-panel h2,
+  .know-panel h2,
+  .closing-section h2,
+  .impact-hero h1,
+  .impact-contribution h2,
+  .impact-closing h2{
+    font-size:clamp(34px,9vw,48px);
+    line-height:1.02;
+    letter-spacing:-.04em;
+  }
+
+  .hero-lead,
+  .section-heading>div:last-child>p,
+  .quote-page-hero>p:last-child,
+  .quote-development-panel>div:last-child>p,
+  .impact-hero>div>p:last-child,
+  .impact-contribution>div:last-child>p,
+  .commercial-learning-panel>div:last-child>p{
+    font-size:16px;
+    line-height:1.65;
+  }
+
+  .path-card h3,
+  .impact-feature-card h3,
+  .commercial-learning-panel h3,
+  .impact-initiative h3,
+  .channel-card h3,
+  .accessible-solutions-grid h3,
+  .solutions-directory-head h3{
+    font-size:clamp(28px,8vw,38px);
+    line-height:1.05;
+  }
+
+  .hero,
+  .path-section,
+  .learn-section,
+  .know-section,
+  .closing-section,
+  .impact-hero,
+  .impact-contribution,
+  .impact-initiatives,
+  .impact-access,
+  .impact-closing{
+    padding-left:20px;
+    padding-right:20px;
+  }
+
+  .accessibility-section,
+  .technology-section,
+  .impact-solutions{
+    padding-left:20px;
+    padding-right:20px;
+  }
+
+  .hero{
+    padding-top:48px;
+    padding-bottom:64px;
+    gap:32px;
+  }
+
+  .hero-visual{
+    min-height:260px;
+  }
+
+  .hero-visual p{
+    font-size:clamp(30px,9vw,42px);
+    left:22px;
+    bottom:22px;
+  }
+
+  .section-heading,
+  .impact-contribution{
+    gap:18px;
+  }
+
+  .path-section,
+  .learn-section,
+  .closing-section,
+  .impact-initiatives,
+  .impact-access,
+  .impact-closing{
+    padding-top:64px;
+    padding-bottom:64px;
+  }
+
+  .impact-feature-card,
+  .path-card,
+  .channel-card{
+    padding:22px;
+    min-height:auto;
+  }
+
+  .impact-feature-card h3,
+  .path-card h3,
+  .channel-card h3{
+    margin-top:28px;
+  }
+
+  .impact-contribution-list{
+    margin-top:22px;
+  }
+
+  .commercial-learning-panel{
+    padding:24px 20px;
+  }
+
+  .know-panel{
+    padding:34px 0;
+  }
+
+  .impact-page-link{
+    margin-top:28px;
+  }
+
+  .solutions-directory-head{
+    padding:22px 18px;
+  }
+
+  .solutions-origin-note{
+    padding:22px 18px;
+  }
+
+  .solutions-table{
+    min-width:720px;
+  }
+
+  .site-footer{
+    padding:36px 20px;
+  }
+}
+
+@media(max-width:420px){
+  .hero h1{
+    font-size:40px;
+  }
+
+  .section-heading h2,
+  .quote-bridge h2,
+  .quote-page-hero h1,
+  .quote-development-panel h2,
+  .know-panel h2,
+  .closing-section h2,
+  .impact-hero h1,
+  .impact-contribution h2,
+  .impact-closing h2{
+    font-size:32px;
+  }
+
+  .path-card h3,
+  .impact-feature-card h3,
+  .commercial-learning-panel h3,
+  .impact-initiative h3,
+  .channel-card h3,
+  .solutions-directory-head h3{
+    font-size:27px;
+  }
+
+  .button{
+    width:100%;
+  }
+
+  .hero-actions,
+  .closing-actions,
+  .result-actions{
+    flex-direction:column;
+  }
+}
