@@ -65,3 +65,50 @@ copy?.addEventListener('click',async()=>{
   }
 });
 close?.addEventListener('click',()=>result.hidden=true);
+
+const impactSolutions = [
+  {
+    name: "Oração Visual",
+    category: "Oração e compreensão visual",
+    contribution: "Apoia a compreensão e a construção de orações por meio de imagens, categorias e estruturas acessíveis.",
+    status: "Disponível"
+  },
+  {
+    name: "Dicionário Católico em Libras",
+    category: "Vocabulário religioso",
+    contribution: "Amplia o acesso a vocabulário religioso em Libras para comunicação, formação e participação em contexto católico.",
+    status: "Em desenvolvimento"
+  },
+  {
+    name: "Recursos visuais de evangelização",
+    category: "Conteúdo religioso acessível",
+    contribution: "Organiza materiais e experiências digitais para tornar conteúdos religiosos mais visuais e compreensíveis.",
+    status: "Em expansão"
+  }
+];
+
+function renderImpactSolutions(filter=""){
+  const tbody=document.getElementById("solutions-table-body");
+  const empty=document.getElementById("solutions-empty");
+  if(!tbody) return;
+  const q=filter.trim().toLowerCase();
+  const rows=impactSolutions.filter(item =>
+    [item.name,item.category,item.contribution,item.status]
+      .join(" ")
+      .toLowerCase()
+      .includes(q)
+  );
+  tbody.innerHTML=rows.map(item=>`
+    <tr>
+      <td><strong>${escapeHtml(item.name)}</strong></td>
+      <td>${escapeHtml(item.category)}</td>
+      <td>${escapeHtml(item.contribution)}</td>
+      <td><span class="solution-status">${escapeHtml(item.status)}</span></td>
+    </tr>
+  `).join("");
+  if(empty) empty.hidden=rows.length>0;
+}
+renderImpactSolutions();
+document.getElementById("solution-search")?.addEventListener("input",e=>{
+  renderImpactSolutions(e.target.value);
+});
