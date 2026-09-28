@@ -168,20 +168,121 @@ function buildPayload() {
   };
 }
 
-async function requestCalculation(payload) {
-  const calcResponse = await fetch(ENDPOINT + '?acao=calcular', {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ ...payload, acao: 'calcular' }),
-    redirect: 'follow'
-  });
+const SERVICE_RULES = {
+  'FEP-SIM-PROVA-BAS': {type:'hour',base:120,team:2},
+  'FEP-SIM-PROVA-MED': {type:'hour',base:180,team:2},
+  'FEP-SIM-PROVA-SUP': {type:'hour',base:240,team:2},
+  'FEP-SIM-ARTCULT': {type:'hour',base:192,team:3,percent:30,streaming:true},
+  'FEP-SIM-JUR-ATEND': {type:'hour',base:144,team:2},
+  'FEP-SIM-JUR-AUD': {type:'hour',base:192,team:3},
+  'FEP-SIM-CONF-D': {type:'day',base:864,team:2},
+  'FEP-SIM-CONF-H': {type:'hour',base:144,team:2},
+  'FEP-SIM-LAZER': {type:'hour',base:144,team:2},
+  'FEP-SIM-SAUDE': {type:'hour',base:144,team:2,percent:30},
+  'FEP-SIM-SAUDE-CIR': {type:'day',base:500,team:2,percent:30},
+  'FEP-SIM-PUBLICO': {type:'rangeHour',base:120,include:2,additional:60,team:2},
+  'FEP-SIM-EMP': {type:'hour',base:144,team:2},
+  'FEP-SIM-SOCIAL': {type:'hour',base:144,team:2},
+  'FEP-PED-AVULSA': {type:'hour',base:144,team:2,minHours:4},
+  'FEP-AV-PROP': {type:'fixed',base:250,team:1},
+  'FEP-AV-FILME': {type:'minute',base:60,team:1},
+  'FEP-AV-FILME-TEC': {type:'minute',base:48,team:1},
+  'FEP-AV-LEG': {type:'minute',base:96,team:1},
+  'FEP-AV-DUB': {type:'minute',base:144,team:1},
+  'FEP-AV-WEB': {type:'minute',base:60,team:1},
+  'FEP-AV-INST': {type:'minute',base:60,team:1},
+  'FEP-AV-VIDEOCALL': {type:'block15',base:25,team:1}
+};
 
-  const textResponse = await calcResponse.text();
-  try {
-    return JSON.parse(textResponse);
-  } catch {
-    throw new Error('O sistema de cálculo respondeu em formato inesperado.');
+function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
+
+function requestCalculation(payload) {
+  const rule = SERVICE_RULES[payload.codigoServico];
+  if (!rule) throw new Error('Este tipo de serviço ainda exige análise manual para cálculo.');
+
+  const duration = Number(payload.duracaoHoras || 0);
+  const days = Math.max(1, Number(payload.qtdDias || 1));
+  let team = Math.max(1, Number(payload.qtdInterpretes || 1), Number(rule.team || 1));
+  if (duration > 1) team = Math.max(team, 2);
+
+  let honorarios = 0;
+  if (rule.type === 'hour') {
+    const hours = Math.max(duration, Number(rule.minHours || 0));
+    honorarios = rule.base * hours * team * days;
+  } else if (rule.type === 'day') {
+    honorarios = rule.base * team * days;
+  } else if (rule.type === 'rangeHour') {
+    honorarios = rule.base * team;
+    if (duration > rule.include) {
+      honorarios += Math.ceil(duration - rule.include) * rule.additional * team;
+    }
+    honorarios *= days;
+  } else if (rule.type === 'minute') {
+    honorarios = rule.base * (duration * 60);
+  } else if (rule.type === 'block15') {
+    honorarios = Math.ceil((duration * 60) / 15) * rule.base;
+  } else if (rule.type === 'fixed') {
+    honorarios = rule.base;
   }
+
+  let adicionais = 0;
+  if (payload.doencaContagiosa === true && rule.percent > 0) {
+    adicionais += honorarios * (rule.percent / 100);
+  }
+  if (payload.gravacaoStreaming === true && rule.streaming === true && rule.percent > 0) {
+    adicionais += honorarios * (rule.percent / 100);
+  }
+  if (String(payload.modalidade).toLowerCase() === 'remota' || String(payload.modalidade).toLowerCase() === 'online') {
+    adicionais += honorarios * .30;
+  }
+
+  let alimentacao = 0;
+  if (duration > 3 && payload.forneceAlimentacao !== true) {
+    alimentacao = Math.ceil(duration / 4) * 50 * team * days;
+  }
+
+  let deslocamento = 0;
+  const transporte = String(payload.transporteTipo || '').toLowerCase();
+  if (['carro','veiculo','veículo particular'].includes(transporte)) {
+    deslocamento = Number(payload.distanciaIdaKm || 0) * 2 * 1.5;
+    if (days > 1 && payload.retornoDiario === true) deslocamento *= days;
+  }
+
+  let passagem = 0;
+  if (['onibus','ônibus','aviao','avião'].includes(transporte)) {
+    passagem = Number(payload.valorPassagem || 0);
+  }
+
+  const hospedagem = Number(payload.valorHospedagem || 0);
+  const outrosCustos = Number(payload.valorOutrosCustos || 0);
+  const total = honorarios + adicionais + alimentacao + deslocamento + passagem + hospedagem + outrosCustos;
+
+  const fullPayment = Number(payload.diasAntecedencia || 0) > 0 && Number(payload.diasAntecedencia) < 3;
+  const sinal = fullPayment ? honorarios + adicionais : (honorarios + adicionais) * .20;
+  const saldo = fullPayment ? 0 : (honorarios + adicionais) - sinal;
+
+  return {
+    sucesso:true,
+    qtdInterpretes:team,
+    valores:{
+      honorarios:roundMoney(honorarios),
+      adicionais:roundMoney(adicionais),
+      alimentacao:roundMoney(alimentacao),
+      deslocamento:roundMoney(deslocamento),
+      passagem:roundMoney(passagem),
+      hospedagem:roundMoney(hospedagem),
+      outrosCustos:roundMoney(outrosCustos),
+      total:roundMoney(total)
+    },
+    pagamento:{
+      percentualSinal:fullPayment ? 100 : 20,
+      sinal:roundMoney(sinal),
+      saldo:roundMoney(saldo),
+      pagamentoIntegral:fullPayment,
+      prazoSaldoDiasAntes:3
+    },
+    validade:{dias:3}
+  };
 }
 
 async function registerBudget(payload) {
@@ -214,23 +315,9 @@ form.addEventListener('submit', async event => {
   try {
     const payload = buildPayload();
 
-    let calculation = null;
-    try {
-      calculation = await requestCalculation(payload);
-    } catch (_) {
-      calculation = null;
-    }
-
-    if (calculation?.valores?.total != null) {
-      payload.valorTotal = calculation.valores.total;
-      payload.qtdInterpretes = calculation.qtdInterpretes || payload.qtdInterpretes;
-    } else if (calculation?.resultado?.valores?.total != null) {
-      calculation = calculation.resultado;
-      payload.valorTotal = calculation.valores.total;
-      payload.qtdInterpretes = calculation.qtdInterpretes || payload.qtdInterpretes;
-    } else {
-      throw new Error('O endpoint publicado não retornou o cálculo técnico esperado. É necessário que o Web App exponha a ação de cálculo antes do registro.');
-    }
+    const calculation = requestCalculation(payload);
+    payload.valorTotal = calculation.valores.total;
+    payload.qtdInterpretes = calculation.qtdInterpretes || payload.qtdInterpretes;
 
     const registration = await registerBudget(payload);
 
