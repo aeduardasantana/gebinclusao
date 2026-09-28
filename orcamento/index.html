@@ -42,56 +42,192 @@
           <h2>Sobre o serviço</h2>
         </div>
 
-        <label>Tipo de atividade
-          <select id="codigoServico" name="codigoServico" required>
-            <option value="">Selecione</option>
+        <div class="service-picker" aria-labelledby="service-picker-title">
+          <div class="service-picker-head">
+            <p class="service-picker-label" id="service-picker-title">Escolha o tipo de atividade</p>
+            <p>Compare as opções abaixo e selecione apenas uma.</p>
+          </div>
 
-            <optgroup label="Interpretação simultânea">
-              <option value="FEP-SIM-PROVA-BAS">Aplicação de provas — nível básico</option>
-              <option value="FEP-SIM-PROVA-MED">Aplicação de provas — nível médio</option>
-              <option value="FEP-SIM-PROVA-SUP">Aplicação de provas — nível superior</option>
-              <option value="FEP-SIM-ARTCULT">Artístico e cultural — espetáculos, shows, cinemas e similares</option>
-              <option value="FEP-SIM-JUR-ATEND">Atendimento jurídico — consultas a advogados, Ministério Público e similares</option>
-              <option value="FEP-SIM-JUR-AUD">Audiência jurídica — audiências, julgamentos, juizados, delegacias e similares</option>
-              <option value="FEP-SIM-CONF-COORD-D">Conferência — coordenação de equipe TILS — diária</option>
-              <option value="FEP-SIM-CONF-COORD-H">Conferência — coordenação de equipe TILS — hora</option>
-              <option value="FEP-SIM-CONF-D">Conferência — palestras, oficinas, seminários e congressos — diária</option>
-              <option value="FEP-SIM-CONF-H">Conferência — palestras, oficinas, seminários e congressos — hora avulsa</option>
-              <option value="FEP-SIM-LAZER">Lazer e turismo — parques, museus, clubes, excursões e similares</option>
-              <option value="FEP-SIM-SAUDE">Saúde — consultas, exames e tratamentos</option>
-              <option value="FEP-SIM-SAUDE-CIR">Saúde — ambiente cirúrgico — parto/cirurgias</option>
-              <option value="FEP-SIM-PUBLICO">Serviços públicos e sociais</option>
-              <option value="FEP-SIM-EMP">Empresarial — treinamentos, seleções de emprego, reuniões e similares</option>
-              <option value="FEP-SIM-SOCIAL">Social — casamentos, bodas, batizados, formaturas, premiações, velórios e cultos</option>
-              <option value="FEP-PREP-CULT">Preparação e estudo prévio — cultural</option>
-              <option value="FEP-PED-AVULSA">Atividade pedagógica avulsa — passeios, saídas de campo, feiras e eventos escolares</option>
-              <option value="FEP-LIDER-AUT">Acompanhamento de liderança ou autoridade</option>
-              <option value="FEP-REMOTO">Interpretação simultânea remota</option>
-            </optgroup>
+          <section class="service-group">
+            <div class="service-group-heading">
+              <span>01</span>
+              <div>
+                <h3>Interpretação simultânea</h3>
+                <p>Atendimentos, eventos, instituições, serviços, atividades sociais e contextos presenciais ou remotos.</p>
+              </div>
+            </div>
+            <div class="service-card-grid">
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-PROVA-BAS" required>
+                <span><strong>Aplicação de provas</strong><small>Nível básico</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-PROVA-MED">
+                <span><strong>Aplicação de provas</strong><small>Nível médio</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-PROVA-SUP">
+                <span><strong>Aplicação de provas</strong><small>Nível superior</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-ARTCULT">
+                <span><strong>Artístico e cultural</strong><small>Espetáculos, shows, cinemas e similares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-JUR-ATEND">
+                <span><strong>Atendimento jurídico</strong><small>Consultas a advogados, Ministério Público e similares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-JUR-AUD">
+                <span><strong>Audiência jurídica</strong><small>Audiências, julgamentos, juizados e delegacias</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-COORD-D">
+                <span><strong>Coordenação de equipe TILS</strong><small>Diária</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-COORD-H">
+                <span><strong>Coordenação de equipe TILS</strong><small>Hora</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-D">
+                <span><strong>Conferência</strong><small>Palestra, oficina, seminário ou congresso — diária</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-H">
+                <span><strong>Conferência</strong><small>Palestra, oficina, seminário ou congresso — hora avulsa</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-LAZER">
+                <span><strong>Lazer e turismo</strong><small>Parques, museus, clubes, excursões e similares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-SAUDE">
+                <span><strong>Saúde</strong><small>Consultas, exames e tratamentos</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-SAUDE-CIR">
+                <span><strong>Saúde — ambiente cirúrgico</strong><small>Parto e cirurgias</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-PUBLICO">
+                <span><strong>Serviços públicos e sociais</strong><small>Cadastramentos, benefícios e atendimentos</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-EMP">
+                <span><strong>Empresarial</strong><small>Treinamentos, seleções, reuniões e similares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-SIM-SOCIAL">
+                <span><strong>Social</strong><small>Casamentos, bodas, batizados, formaturas, premiações, velórios e cultos</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-PREP-CULT">
+                <span><strong>Preparação e estudo prévio</strong><small>Contexto cultural</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-PED-AVULSA">
+                <span><strong>Atividade pedagógica avulsa</strong><small>Passeios, saídas de campo, feiras e eventos escolares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-LIDER-AUT">
+                <span><strong>Acompanhamento de liderança ou autoridade</strong><small>Atuação dedicada</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-REMOTO">
+                <span><strong>Interpretação simultânea remota</strong><small>Orador em local diferente do intérprete</small></span>
+              </label>
+            </div>
+          </section>
 
-            <optgroup label="Audiovisual">
-              <option value="FEP-AV-PROP">Propaganda de marcas — vídeo de propaganda</option>
-              <option value="FEP-AV-POL">Programas políticos — vinheta, propaganda, horário ou campanha eleitoral</option>
-              <option value="FEP-AV-DEBATE">Debate político</option>
-              <option value="FEP-AV-FILME">Tradução de filmes</option>
-              <option value="FEP-AV-FILME-TEC">Tradução de filme técnico</option>
-              <option value="FEP-AV-LEG">Tradução e legendagem</option>
-              <option value="FEP-AV-DUB">Tradução e dublagem</option>
-              <option value="FEP-AV-TV-REC">Interpretação recorrente em programa de TV</option>
-              <option value="FEP-AV-WEB">Tradução de vídeo para Internet</option>
-              <option value="FEP-AV-INST">Tradução de vídeo institucional — cursos e treinamentos</option>
-              <option value="FEP-AV-VIDEOCALL">Videochamada — atendimentos emergenciais</option>
-              <option value="FEP-AV-STUDIO">Diária em estúdio de gravação</option>
-              <option value="FEP-AV-LIVE">Interpretação ao vivo para TV e Internet — lives</option>
-            </optgroup>
+          <section class="service-group">
+            <div class="service-group-heading">
+              <span>02</span>
+              <div>
+                <h3>Audiovisual</h3>
+                <p>Vídeos, transmissões, programas, produção audiovisual e comunicação digital.</p>
+              </div>
+            </div>
+            <div class="service-card-grid">
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-PROP">
+                <span><strong>Propaganda de marcas</strong><small>Vídeo de propaganda</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-POL">
+                <span><strong>Programas políticos</strong><small>Vinheta, propaganda, horário ou campanha eleitoral</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-DEBATE">
+                <span><strong>Debate político</strong><small>Interpretação audiovisual</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-FILME">
+                <span><strong>Tradução de filmes</strong><small>Filme</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-FILME-TEC">
+                <span><strong>Tradução de filme técnico</strong><small>Conteúdo técnico</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-LEG">
+                <span><strong>Tradução e legendagem</strong><small>Produção audiovisual</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-DUB">
+                <span><strong>Tradução e dublagem</strong><small>Produção audiovisual</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-TV-REC">
+                <span><strong>Programa de TV recorrente</strong><small>Interpretação recorrente</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-WEB">
+                <span><strong>Vídeo para Internet</strong><small>Sites, blogs e similares</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-INST">
+                <span><strong>Vídeo institucional</strong><small>Cursos e treinamentos</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-VIDEOCALL">
+                <span><strong>Videochamada</strong><small>Atendimento emergencial</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-STUDIO">
+                <span><strong>Diária em estúdio</strong><small>Permanência em estúdio de gravação</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-AV-LIVE">
+                <span><strong>TV e Internet ao vivo</strong><small>Lives e transmissões</small></span>
+              </label>
+            </div>
+          </section>
 
-            <optgroup label="Interpretação educacional">
-              <option value="FEP-EDU-BAS">Educação básica e técnica — 20 horas semanais</option>
-              <option value="FEP-EDU-SUP">Ensino superior, tecnológico e especialização — 20 horas semanais</option>
-              <option value="FEP-EDU-POS">Mestrado e doutorado — 20 horas semanais</option>
-            </optgroup>
-          </select>
-        </label>
+          <section class="service-group">
+            <div class="service-group-heading">
+              <span>03</span>
+              <div>
+                <h3>Interpretação educacional</h3>
+                <p>Aulas e acompanhamento educacional conforme o nível de ensino.</p>
+              </div>
+            </div>
+            <div class="service-card-grid service-card-grid-education">
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-EDU-BAS">
+                <span><strong>Educação básica e técnica</strong><small>Referência de 20 horas semanais</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-EDU-SUP">
+                <span><strong>Ensino superior, tecnológico e especialização</strong><small>Referência de 20 horas semanais</small></span>
+              </label>
+              <label class="service-option">
+                <input type="radio" name="codigoServico" value="FEP-EDU-POS">
+                <span><strong>Mestrado e doutorado</strong><small>Referência de 20 horas semanais</small></span>
+              </label>
+            </div>
+          </section>
+        </div>
 
         <div class="field-grid two">
           <label>Modalidade
