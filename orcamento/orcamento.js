@@ -175,6 +175,8 @@ const SERVICE_RULES = {
   'FEP-SIM-ARTCULT': {type:'hour',base:192,team:3,percent:30,streaming:true},
   'FEP-SIM-JUR-ATEND': {type:'hour',base:144,team:2},
   'FEP-SIM-JUR-AUD': {type:'hour',base:192,team:3},
+  'FEP-SIM-CONF-COORD-D': {type:'day',base:1080,team:1,percent:20},
+  'FEP-SIM-CONF-COORD-H': {type:'hour',base:180,team:1,percent:20},
   'FEP-SIM-CONF-D': {type:'day',base:864,team:2},
   'FEP-SIM-CONF-H': {type:'hour',base:144,team:2},
   'FEP-SIM-LAZER': {type:'hour',base:144,team:2},
@@ -183,15 +185,28 @@ const SERVICE_RULES = {
   'FEP-SIM-PUBLICO': {type:'rangeHour',base:120,include:2,additional:60,team:2},
   'FEP-SIM-EMP': {type:'hour',base:144,team:2},
   'FEP-SIM-SOCIAL': {type:'hour',base:144,team:2},
+  'FEP-PREP-CULT': {type:'fixedPerInterpreter',base:480,team:1},
   'FEP-PED-AVULSA': {type:'hour',base:144,team:2,minHours:4},
+  'FEP-LIDER-AUT': {type:'fixedPlusInterpretation',base:250,team:2},
+  'FEP-REMOTO': {type:'percentOfBase',base:0,team:2,percent:30},
+
   'FEP-AV-PROP': {type:'fixed',base:250,team:1},
+  'FEP-AV-POL': {type:'perVideo',base:300,team:2},
+  'FEP-AV-DEBATE': {type:'hour',base:300,team:3},
   'FEP-AV-FILME': {type:'minute',base:60,team:1},
   'FEP-AV-FILME-TEC': {type:'minute',base:48,team:1},
   'FEP-AV-LEG': {type:'minute',base:96,team:1},
   'FEP-AV-DUB': {type:'minute',base:144,team:1},
+  'FEP-AV-TV-REC': {type:'hour',base:48,team:1},
   'FEP-AV-WEB': {type:'minute',base:60,team:1},
   'FEP-AV-INST': {type:'minute',base:60,team:1},
-  'FEP-AV-VIDEOCALL': {type:'block15',base:25,team:1}
+  'FEP-AV-VIDEOCALL': {type:'block15',base:25,team:1},
+  'FEP-AV-STUDIO': {type:'fixedPlusInterpretation',base:300,team:1},
+  'FEP-AV-LIVE': {type:'percentOfBase',base:0,team:2,percent:30},
+
+  'FEP-EDU-BAS': {type:'package',base:2016,team:1},
+  'FEP-EDU-SUP': {type:'package',base:2630.4,team:1},
+  'FEP-EDU-POS': {type:'package',base:3360,team:1}
 };
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
@@ -223,6 +238,16 @@ function requestCalculation(payload) {
     honorarios = Math.ceil((duration * 60) / 15) * rule.base;
   } else if (rule.type === 'fixed') {
     honorarios = rule.base;
+  } else if (rule.type === 'fixedPerInterpreter') {
+    honorarios = rule.base * team;
+  } else if (rule.type === 'perVideo') {
+    honorarios = rule.base;
+  } else if (rule.type === 'package') {
+    honorarios = rule.base;
+  } else if (rule.type === 'fixedPlusInterpretation') {
+    honorarios = rule.base * team * days;
+  } else if (rule.type === 'percentOfBase') {
+    throw new Error('Esta regra depende de uma atividade-base e o próprio backend ainda não possui cálculo automático independente para esta categoria.');
   }
 
   let adicionais = 0;
