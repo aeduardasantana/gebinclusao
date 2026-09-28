@@ -16,6 +16,9 @@ const result = document.getElementById('budget-result');
 const success = document.getElementById('result-success');
 const errorBox = document.getElementById('result-error');
 const submitButton = document.getElementById('submit-budget');
+const serviceDays = document.getElementById('service-days');
+const addServiceDayButton = document.getElementById('add-service-day');
+const totalServiceHours = document.getElementById('total-service-hours');
 
 let currentStep = 1;
 
@@ -120,6 +123,88 @@ function calculateDurationHours(start, end) {
   return Math.max(1, Math.ceil(minutes / 60));
 }
 
+function getServiceDays() {
+  return [...document.querySelectorAll('.service-day')].map((row, index) => {
+    const date = row.querySelector('.service-day-date')?.value || '';
+    const start = row.querySelector('.service-day-start')?.value || '';
+    const end = row.querySelector('.service-day-end')?.value || '';
+    return {
+      indice: index + 1,
+      data: date,
+      horarioInicial: start,
+      horarioFinal: end,
+      horas: calculateDurationHours(start, end)
+    };
+  });
+}
+
+function updateLegacyScheduleFields() {
+  const days = getServiceDays();
+  const first = days[0] || {};
+  const total = days.reduce((sum, day) => sum + Number(day.horas || 0), 0);
+
+  document.getElementById('dataServico').value = first.data || '';
+  document.getElementById('horario').value = first.horarioInicial || '';
+  document.getElementById('horarioFinal').value = first.horarioFinal || '';
+  document.getElementById('qtdDias').value = String(Math.max(1, days.length));
+
+  if (totalServiceHours) {
+    totalServiceHours.textContent = total > 0
+      ? total + ' hora(s) em ' + days.length + ' dia(s)'
+      : 'Preencha a programação para calcular a carga horária.';
+  }
+
+  syncTeamRecommendation();
+}
+
+function bindServiceDay(row) {
+  row.querySelectorAll('input').forEach(input => {
+    input.addEventListener('change', updateLegacyScheduleFields);
+    input.addEventListener('input', updateLegacyScheduleFields);
+  });
+
+  row.querySelector('.remove-service-day')?.addEventListener('click', () => {
+    row.remove();
+    [...document.querySelectorAll('.service-day')].forEach((item, index) => {
+      item.dataset.dayIndex = String(index);
+      const title = item.querySelector('.service-day-title');
+      if (title) title.textContent = 'Dia ' + (index + 1);
+    });
+    updateLegacyScheduleFields();
+  });
+}
+
+function addServiceDay() {
+  const index = document.querySelectorAll('.service-day').length;
+  const row = document.createElement('div');
+  row.className = 'service-day';
+  row.dataset.dayIndex = String(index);
+  row.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px">
+      <strong class="service-day-title">Dia ${index + 1}</strong>
+      <button class="button button-ghost-dark remove-service-day" type="button">Remover dia</button>
+    </div>
+    <div class="field-grid three">
+      <label>Data
+        <input class="service-day-date" type="date" required>
+      </label>
+      <label>Horário inicial / início da disponibilidade
+        <input class="service-day-start" type="time" required>
+      </label>
+      <label>Horário final / liberação prevista
+        <input class="service-day-end" type="time" required>
+        <small>A duração de cada dia é arredondada para hora cheia.</small>
+      </label>
+    </div>
+  `;
+  serviceDays.appendChild(row);
+  bindServiceDay(row);
+  updateLegacyScheduleFields();
+}
+
+document.querySelectorAll('.service-day').forEach(bindServiceDay);
+addServiceDayButton?.addEventListener('click', addServiceDay);
+
 function buildEventAddress() {
   return [
     text('logradouroEvento'),
@@ -134,11 +219,12 @@ function buildEventAddress() {
 
 function recommendedTeamSize() {
   const code = selectedServiceInput()?.value || '';
-  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
+  const days = getServiceDays();
+  const maxDailyHours = days.reduce((max, day) => Math.max(max, Number(day.horas || 0)), 0);
   const rule = SERVICE_RULES[code] || {};
   let team = 1;
 
-  if (duration > 1) team = Math.max(team, 2);
+  if (maxDailyHours > 1) team = Math.max(team, 2);
 
   if (Number(rule.team || 1) > team) {
     team = Number(rule.team || 1);
@@ -146,7 +232,7 @@ function recommendedTeamSize() {
 
   if (
     (code === 'FEP-SIM-CONF-D' || code === 'FEP-SIM-CONF-H') &&
-    duration > 6
+    maxDailyHours > 6
   ) {
     team = Math.max(team, 3);
   }
@@ -155,21 +241,22 @@ function recommendedTeamSize() {
 }
 
 function buildTeamRuleText() {
-  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
+  const days = getServiceDays();
   const recommendation = recommendedTeamSize();
   const selected = selectedServiceInput();
+  const complete = days.length && days.every(day => day.data && day.horarioInicial && day.horarioFinal);
 
-  if (!selected || !text('horario') || !text('horarioFinal')) {
+  if (!selected || !complete) {
     return 'Em demandas mais longas, o GEB pode recomendar mais de 1 intérprete para permitir revezamento. A contratação de profissionais adicionais é opcional.';
   }
 
   if (recommendation > 1) {
-    return 'Para esta demanda, o GEB recomenda ' +
+    return 'Para esta programação, o GEB recomenda ' +
       recommendation +
       ' intérpretes para organização do revezamento. A contratação dessa quantidade é opcional; você pode manter 1 intérprete ou informar uma quantidade maior.';
   }
 
-  return 'Para esta demanda, não há recomendação automática de ampliar a equipe. Você pode contratar 1 intérprete ou informar uma quantidade maior.';
+  return 'Para esta programação, não há recomendação automática de ampliar a equipe. Você pode contratar 1 intérprete ou informar uma quantidade maior.';
 }
 
 function syncTeamRecommendation() {
@@ -183,17 +270,23 @@ function syncTeamRecommendation() {
 document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
   el.addEventListener('change', syncTeamRecommendation);
 });
-document.getElementById('horario')?.addEventListener('change', syncTeamRecommendation);
-document.getElementById('horarioFinal')?.addEventListener('change', syncTeamRecommendation);
+
+updateLegacyScheduleFields();
 
 function buildPayload() {
   const modalidadeValue = text('modalidade');
-  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
-  const dias = Math.max(1, getNumber('qtdDias') || 1);
+  const diasServico = getServiceDays();
+  const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
+  const dias = Math.max(1, diasServico.length);
+  const primeiroDia = diasServico[0] || {};
   const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
 
   const detalhesPartes = [
     text('detalhes'),
+    'Programação: ' + diasServico.map(day =>
+      'Dia ' + day.indice + ': ' + day.data + ' | ' + day.horarioInicial + ' às ' + day.horarioFinal + ' | ' + day.horas + 'h'
+    ).join(' ; '),
+    'Carga horária total: ' + duration + ' hora(s)',
     'Regra de equipe: ' + buildTeamRuleText(),
     'Quantidade recomendada pelo GEB: ' + recommendedTeamSize(),
     'Quantidade escolhida pelo cliente: ' + Math.max(1, getNumber('qtdInterpretes') || 1),
@@ -223,11 +316,13 @@ function buildPayload() {
     servico: serviceLabel(),
     codigoServico: selectedServiceInput()?.value || '',
     modalidade: modalidadeValue,
-    dataServico: text('dataServico'),
-    horario: text('horario'),
-    horarioFinal: text('horarioFinal'),
-    duracao: String(duration) + ' hora(s)',
+    dataServico: primeiroDia.data || '',
+    horario: primeiroDia.horarioInicial || '',
+    horarioFinal: primeiroDia.horarioFinal || '',
+    duracao: String(duration) + ' hora(s) em ' + dias + ' dia(s)',
     duracaoHoras: duration,
+    cargaHorariaTotal: duration,
+    diasServico: diasServico,
     qtdDias: dias,
     qtdInterpretes: qtdInt,
 
@@ -242,7 +337,7 @@ function buildPayload() {
 
     doencaContagiosa: checked('doencaContagiosa'),
     gravacaoStreaming: checked('gravacaoStreaming'),
-    diasAntecedencia: daysUntil(text('dataServico')),
+    diasAntecedencia: daysUntil(primeiroDia.data || ''),
     observacaoPagamento: text('observacaoPagamento'),
 
     detalhes: detalhesPartes.join('\n'),
@@ -315,45 +410,57 @@ const SERVICE_RULES = {
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
 
-// Executa somente depois de SERVICE_RULES estar inicializado.
-syncTeamRecommendation();
-
 function requestCalculation(payload) {
   const rule = SERVICE_RULES[payload.codigoServico];
   if (!rule) throw new Error('Este tipo de serviço ainda exige análise manual para cálculo.');
 
-  const duration = Number(payload.duracaoHoras || 0);
-  const days = Math.max(1, Number(payload.qtdDias || 1));
-  let team = Math.max(1, Number(payload.qtdInterpretes || 1));
+  const serviceDays = Array.isArray(payload.diasServico) && payload.diasServico.length
+    ? payload.diasServico
+    : [{
+        data: payload.dataServico,
+        horarioInicial: payload.horario,
+        horarioFinal: payload.horarioFinal,
+        horas: Number(payload.duracaoHoras || 0)
+      }];
+
+  const totalHours = serviceDays.reduce((sum, day) => sum + Number(day.horas || 0), 0);
+  const days = Math.max(1, serviceDays.length);
+  const team = Math.max(1, Number(payload.qtdInterpretes || 1));
 
   let honorarios = 0;
+
   if (rule.type === 'hour') {
-    const hours = Math.max(duration, Number(rule.minHours || 0));
-    honorarios = rule.base * hours * team * days;
+    honorarios = serviceDays.reduce((sum, day) => {
+      const hours = Math.max(Number(day.horas || 0), Number(rule.minHours || 0));
+      return sum + (rule.base * hours * team);
+    }, 0);
   } else if (rule.type === 'day') {
     honorarios = rule.base * team * days;
   } else if (rule.type === 'rangeHour') {
-    honorarios = rule.base * team;
-    if (duration > rule.include) {
-      honorarios += Math.ceil(duration - rule.include) * rule.additional * team;
-    }
-    honorarios *= days;
+    honorarios = serviceDays.reduce((sum, day) => {
+      const duration = Number(day.horas || 0);
+      let daily = rule.base * team;
+      if (duration > rule.include) {
+        daily += Math.ceil(duration - rule.include) * rule.additional * team;
+      }
+      return sum + daily;
+    }, 0);
   } else if (rule.type === 'minute') {
-    honorarios = rule.base * (duration * 60);
+    honorarios = rule.base * (totalHours * 60) * team;
   } else if (rule.type === 'block15') {
-    honorarios = Math.ceil((duration * 60) / 15) * rule.base;
+    honorarios = Math.ceil((totalHours * 60) / 15) * rule.base * team;
   } else if (rule.type === 'fixed') {
-    honorarios = rule.base;
+    honorarios = rule.base * team;
   } else if (rule.type === 'fixedPerInterpreter') {
     honorarios = rule.base * team;
   } else if (rule.type === 'perVideo') {
-    honorarios = rule.base;
+    honorarios = rule.base * team;
   } else if (rule.type === 'package') {
-    honorarios = rule.base;
+    honorarios = rule.base * team;
   } else if (rule.type === 'fixedPlusInterpretation') {
     honorarios = rule.base * team * days;
   } else if (rule.type === 'percentOfBase') {
-    throw new Error('Esta regra depende de uma atividade-base e o próprio backend ainda não possui cálculo automático independente para esta categoria.');
+    throw new Error('Esta regra depende de uma atividade-base e ainda exige definição do serviço-base para cálculo automático.');
   }
 
   let adicionais = 0;
@@ -368,8 +475,12 @@ function requestCalculation(payload) {
   }
 
   let alimentacao = 0;
-  if (duration > 3 && payload.forneceAlimentacao !== true) {
-    alimentacao = Math.ceil(duration / 4) * 50 * team * days;
+  if (payload.forneceAlimentacao !== true) {
+    alimentacao = serviceDays.reduce((sum, day) => {
+      const hours = Number(day.horas || 0);
+      if (hours <= 3) return sum;
+      return sum + (Math.ceil(hours / 4) * 50 * team);
+    }, 0);
   }
 
   let deslocamento = 0;
@@ -391,13 +502,18 @@ function requestCalculation(payload) {
   const outrosCustos = Number(payload.valorOutrosCustos || 0);
   const total = honorarios + adicionais + alimentacao + deslocamento + passagem + hospedagem + outrosCustos;
 
-  const fullPayment = Number(payload.diasAntecedencia || 0) > 0 && Number(payload.diasAntecedencia) < 3;
-  const sinal = fullPayment ? honorarios + adicionais : (honorarios + adicionais) * .20;
-  const saldo = fullPayment ? 0 : (honorarios + adicionais) - sinal;
+  const antecedencia = Number(payload.diasAntecedencia);
+  const fullPayment = Number.isFinite(antecedencia) && antecedencia >= 0 && antecedencia < 3;
+  const baseProfissional = honorarios + adicionais;
+  const sinal = fullPayment ? baseProfissional : baseProfissional * .20;
+  const saldo = fullPayment ? 0 : baseProfissional - sinal;
 
   return {
     sucesso:true,
     qtdInterpretes:team,
+    cargaHorariaTotal:totalHours,
+    qtdDias:days,
+    diasServico:serviceDays,
     valores:{
       honorarios:roundMoney(honorarios),
       adicionais:roundMoney(adicionais),
