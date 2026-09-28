@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Solicitação de orçamento para serviços de interpretação em Libras do GEB Inclusão.">
+  <meta name="description" content="Solicite orçamento para interpretação em Libras pelo GEB Inclusão.">
   <meta name="theme-color" content="#0b1f3a">
   <title>Orçamento | GEB Inclusão</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,27 +20,281 @@
   <a class="header-cta" href="../">Voltar ao GEB Inclusão</a>
 </header>
 
-<main>
-  <section class="quote-page-hero">
-    <p class="eyebrow">SOLICITAÇÃO DE ORÇAMENTO</p>
-    <h1>Interpretação em Libras exige uma análise completa da demanda.</h1>
-    <p>Esta página será o ambiente próprio para coleta das informações necessárias à elaboração do orçamento. O questionário definitivo ainda está em desenvolvimento.</p>
+<main class="budget-app">
+  <section class="quote-page-hero quote-page-hero-live">
+    <p class="eyebrow">ORÇAMENTO DE INTERPRETAÇÃO EM LIBRAS</p>
+    <h1>Calcule sua demanda com as regras do serviço.</h1>
+    <p>Responda às etapas abaixo. O cálculo final é realizado pelo sistema do GEB Inclusão com base no tipo de serviço, duração, equipe, modalidade e logística informada.</p>
   </section>
 
-  <section class="quote-development-panel">
-    <div>
-      <span class="section-number">01</span>
-      <p class="section-kicker">Estrutura em desenvolvimento</p>
+  <section class="budget-shell">
+    <div class="budget-progress" aria-label="Etapas do orçamento">
+      <span class="active">1 · Serviço</span>
+      <span>2 · Logística</span>
+      <span>3 · Solicitante</span>
+      <span>4 · Resultado</span>
     </div>
-    <div>
-      <h2>O formulário será construído para captar o contexto real do serviço.</h2>
-      <p>Em vez de um formulário simples, a solicitação será organizada para considerar os fatores que efetivamente interferem na prestação do serviço de interpretação, permitindo uma análise mais adequada antes da definição do orçamento.</p>
 
-      <div class="development-note">
-        <strong>Questionário em desenvolvimento</strong>
-        <p>As perguntas ainda serão definidas e revisadas antes da publicação do fluxo definitivo. Esta página já está separada da LP para receber uma estrutura mais robusta posteriormente.</p>
+    <form id="budget-form" class="budget-form">
+      <fieldset class="budget-step active" data-step="1">
+        <div class="budget-step-heading">
+          <p class="section-kicker">Etapa 1</p>
+          <h2>Sobre o serviço</h2>
+        </div>
+
+        <label>Tipo de atividade
+          <select id="codigoServico" name="codigoServico" required>
+            <option value="">Selecione</option>
+            <optgroup label="Empresarial e eventos">
+              <option value="FEP-SIM-EMP">Empresarial — treinamentos, reuniões e seleções</option>
+              <option value="FEP-SIM-CONF-H">Conferência — palestra, oficina, seminário ou congresso (hora avulsa)</option>
+              <option value="FEP-SIM-CONF-D">Conferência — diária</option>
+              <option value="FEP-SIM-SOCIAL">Social — casamento, formatura, premiação, culto e similares</option>
+              <option value="FEP-SIM-ARTCULT">Artístico e cultural — espetáculo, show, cinema e similares</option>
+              <option value="FEP-SIM-LAZER">Lazer e turismo — parque, museu, excursão e similares</option>
+              <option value="FEP-PED-AVULSA">Atividade pedagógica avulsa — passeio, feira ou evento escolar</option>
+            </optgroup>
+            <optgroup label="Atendimentos e serviços">
+              <option value="FEP-SIM-PUBLICO">Serviço público ou social</option>
+              <option value="FEP-SIM-JUR-ATEND">Atendimento jurídico</option>
+              <option value="FEP-SIM-JUR-AUD">Audiência jurídica</option>
+              <option value="FEP-SIM-SAUDE">Saúde — consulta, exame ou tratamento</option>
+              <option value="FEP-SIM-SAUDE-CIR">Saúde — parto ou cirurgia</option>
+            </optgroup>
+            <optgroup label="Provas e concursos">
+              <option value="FEP-SIM-PROVA-BAS">Aplicação de prova — nível básico</option>
+              <option value="FEP-SIM-PROVA-MED">Aplicação de prova — nível médio</option>
+              <option value="FEP-SIM-PROVA-SUP">Aplicação de prova — nível superior</option>
+            </optgroup>
+            <optgroup label="Audiovisual">
+              <option value="FEP-AV-PROP">Vídeo de propaganda de marca</option>
+              <option value="FEP-AV-FILME">Tradução de filme</option>
+              <option value="FEP-AV-FILME-TEC">Tradução de filme técnico</option>
+              <option value="FEP-AV-LEG">Tradução e legendagem</option>
+              <option value="FEP-AV-DUB">Tradução e dublagem</option>
+              <option value="FEP-AV-WEB">Vídeo para Internet</option>
+              <option value="FEP-AV-INST">Vídeo institucional / curso / treinamento</option>
+              <option value="FEP-AV-VIDEOCALL">Videochamada emergencial</option>
+              <option value="FEP-AV-LIVE">Interpretação ao vivo para TV ou Internet</option>
+            </optgroup>
+          </select>
+        </label>
+
+        <div class="field-grid two">
+          <label>Modalidade
+            <select id="modalidade" name="modalidade" required>
+              <option value="Presencial">Presencial</option>
+              <option value="Remota">Online / remota</option>
+            </select>
+          </label>
+          <label>Data do serviço
+            <input id="dataServico" name="dataServico" type="date" required>
+          </label>
+        </div>
+
+        <div class="field-grid three">
+          <label>Horário inicial
+            <input id="horario" name="horario" type="time" required>
+          </label>
+          <label>Duração estimada (horas)
+            <input id="duracaoHoras" name="duracaoHoras" type="number" min="0.25" step="0.25" value="2" required>
+          </label>
+          <label>Quantidade de dias
+            <input id="qtdDias" name="qtdDias" type="number" min="1" step="1" value="1" required>
+          </label>
+        </div>
+
+        <div class="field-grid two">
+          <label>Quantidade estimada de pessoas surdas
+            <input id="publicoSurdo" name="publicoSurdo" type="number" min="0" step="1" placeholder="Ex.: 4">
+          </label>
+          <label>Quantidade de intérpretes desejada
+            <input id="qtdInterpretes" name="qtdInterpretes" type="number" min="1" step="1" value="1">
+            <small>O sistema aplica automaticamente a equipe mínima prevista para o serviço.</small>
+          </label>
+        </div>
+
+        <div class="choice-grid">
+          <label class="choice"><input type="checkbox" id="gravacaoStreaming" name="gravacaoStreaming"><span>Haverá gravação ou streaming</span></label>
+          <label class="choice"><input type="checkbox" id="doencaContagiosa" name="doencaContagiosa"><span>Há contexto com doença contagiosa / insalubridade</span></label>
+        </div>
+
+        <div class="budget-actions">
+          <button class="button button-primary next-step" type="button">Continuar</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="budget-step" data-step="2" hidden>
+        <div class="budget-step-heading">
+          <p class="section-kicker">Etapa 2</p>
+          <h2>Logística e condições</h2>
+        </div>
+
+        <div id="presential-fields">
+          <label>Endereço completo do serviço
+            <input id="enderecoEvento" name="enderecoEvento" type="text" placeholder="Rua, número, bairro, cidade e UF">
+          </label>
+
+          <div class="field-grid two">
+            <label>Como será o deslocamento?
+              <select id="transporteTipo" name="transporteTipo">
+                <option value="carro">Veículo particular</option>
+                <option value="fornecido">Transporte fornecido pelo contratante</option>
+                <option value="onibus">Ônibus</option>
+                <option value="aviao">Avião</option>
+                <option value="outro">Outro</option>
+              </select>
+            </label>
+            <label>Distância estimada de ida (km)
+              <input id="distanciaIdaKm" name="distanciaIdaKm" type="number" min="0" step="0.1" value="0">
+            </label>
+          </div>
+
+          <div class="field-grid two">
+            <label>Valor estimado de passagem (R$)
+              <input id="valorPassagem" name="valorPassagem" type="number" min="0" step="0.01" value="0">
+            </label>
+            <label>Valor estimado de hospedagem (R$)
+              <input id="valorHospedagem" name="valorHospedagem" type="number" min="0" step="0.01" value="0">
+            </label>
+          </div>
+
+          <div class="choice-grid">
+            <label class="choice"><input type="checkbox" id="retornoDiario" name="retornoDiario"><span>Haverá retorno diário para eventos com mais de um dia</span></label>
+            <label class="choice"><input type="checkbox" id="forneceAlimentacao" name="forneceAlimentacao"><span>O contratante fornecerá alimentação</span></label>
+            <label class="choice"><input type="checkbox" id="forneceAgua" name="forneceAgua"><span>O contratante fornecerá água</span></label>
+          </div>
+        </div>
+
+        <div class="field-grid two">
+          <label>Outros custos previstos (R$)
+            <input id="valorOutrosCustos" name="valorOutrosCustos" type="number" min="0" step="0.01" value="0">
+          </label>
+          <label>Orçamento disponível para a contratação (opcional)
+            <input id="orcamentoDisponivel" name="orcamentoDisponivel" type="number" min="0" step="0.01" placeholder="Não altera o cálculo técnico">
+          </label>
+        </div>
+
+        <label>O contratante já utilizou intérpretes em uma demanda semelhante?
+          <select id="historicoInterprete" name="historicoInterprete">
+            <option value="Não informado">Prefiro não informar</option>
+            <option value="Não">Não</option>
+            <option value="Sim">Sim</option>
+          </select>
+        </label>
+
+        <label>Observações sobre a demanda
+          <textarea id="detalhes" name="detalhes" rows="5" placeholder="Contexto, programação, quantidade de ambientes, histórico de contratação ou outras informações úteis."></textarea>
+        </label>
+
+        <div class="budget-actions split">
+          <button class="button button-ghost-dark prev-step" type="button">Voltar</button>
+          <button class="button button-primary next-step" type="button">Continuar</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="budget-step" data-step="3" hidden>
+        <div class="budget-step-heading">
+          <p class="section-kicker">Etapa 3</p>
+          <h2>Dados do solicitante</h2>
+        </div>
+
+        <div class="field-grid two">
+          <label>Contratação
+            <select id="tipoPessoa" name="tipoPessoa" required>
+              <option value="Pessoa jurídica">Pessoa jurídica</option>
+              <option value="Pessoa física">Pessoa física</option>
+            </select>
+          </label>
+          <label>Nome do responsável
+            <input id="nome" name="nome" type="text" autocomplete="name" required>
+          </label>
+        </div>
+
+        <div class="field-grid two">
+          <label>Empresa ou instituição
+            <input id="empresa" name="empresa" type="text" autocomplete="organization">
+          </label>
+          <label>CPF ou CNPJ
+            <input id="documento" name="documento" type="text">
+          </label>
+        </div>
+
+        <div class="field-grid two">
+          <label>E-mail
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </label>
+          <label>WhatsApp
+            <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" required>
+          </label>
+        </div>
+
+        <label>Cidade / UF
+          <input id="cidadeUf" name="cidadeUf" type="text" placeholder="Ex.: Goiânia / GO">
+        </label>
+
+        <div class="choice-grid choice-grid-stack">
+          <label class="choice"><input type="checkbox" id="precisaNf" name="precisaNf"><span>Precisa de nota fiscal</span></label>
+        </div>
+
+        <div id="fiscal-fields" class="fiscal-fields" hidden>
+          <div class="field-grid two">
+            <label>Razão social / nome para faturamento
+              <input id="razaoSocial" name="razaoSocial" type="text">
+            </label>
+            <label>CPF/CNPJ para faturamento
+              <input id="documentoFiscal" name="documentoFiscal" type="text">
+            </label>
+          </div>
+          <div class="field-grid two">
+            <label>Inscrição municipal/estadual
+              <input id="inscricaoFiscal" name="inscricaoFiscal" type="text">
+            </label>
+            <label>E-mail fiscal
+              <input id="emailFiscal" name="emailFiscal" type="email">
+            </label>
+          </div>
+          <label>Endereço fiscal
+            <input id="enderecoFiscal" name="enderecoFiscal" type="text">
+          </label>
+        </div>
+
+        <label>Observação sobre pagamento (opcional)
+          <textarea id="observacaoPagamento" name="observacaoPagamento" rows="3" placeholder="Ex.: empenho, boleto ou condição administrativa específica."></textarea>
+        </label>
+
+        <label class="consent budget-consent">
+          <input id="consentimento" type="checkbox" required>
+          <span>Autorizo o uso destes dados para análise, registro e retorno desta solicitação de orçamento.</span>
+        </label>
+
+        <div class="budget-actions split">
+          <button class="button button-ghost-dark prev-step" type="button">Voltar</button>
+          <button id="submit-budget" class="button button-primary" type="submit">Calcular e gerar orçamento</button>
+        </div>
+      </fieldset>
+    </form>
+
+    <section id="budget-result" class="budget-result" hidden aria-live="polite">
+      <p class="section-kicker">Etapa 4 · Resultado</p>
+      <div id="result-success" hidden>
+        <p class="result-status">ORÇAMENTO GERADO</p>
+        <h2 id="result-number">Seu orçamento</h2>
+        <div id="result-values" class="result-values"></div>
+        <p id="result-message" class="result-message"></p>
+        <div class="result-actions">
+          <a id="result-pdf" class="button button-primary" href="#" target="_blank" rel="noopener" hidden>Abrir PDF do orçamento ↗</a>
+          <a class="button button-ghost-dark" href="../">Voltar ao GEB Inclusão</a>
+        </div>
       </div>
-    </div>
+
+      <div id="result-error" class="result-error" hidden>
+        <p class="result-status">NÃO FOI POSSÍVEL CONCLUIR</p>
+        <h2>Revise os dados e tente novamente.</h2>
+        <p id="result-error-message"></p>
+        <button class="button button-primary" id="try-again" type="button">Voltar ao formulário</button>
+      </div>
+    </section>
   </section>
 </main>
 
@@ -56,8 +310,7 @@
   <p>GEB integra soluções empresariais, educação, saúde, inclusão e tecnologia em uma única marca.</p>
   <small>© <span id="year"></span> GEB. Todos os direitos reservados.</small>
 </footer>
-<script>
-document.getElementById('year').textContent=new Date().getFullYear();
-</script>
+
+<script src="orcamento.js"></script>
 </body>
 </html>
