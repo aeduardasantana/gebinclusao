@@ -1033,3 +1033,38 @@ button{cursor:pointer}
   .budget-actions .button{width:100%}
   .result-value-row{align-items:flex-start}
 }
+
+
+/* Seletor visual de serviços do orçamento */
+.service-picker{margin-bottom:34px}
+.service-picker-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.service-picker-head p{margin:0}
+.service-picker-label{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--navy)}
+.service-picker-head p:last-child{font-size:14px;color:var(--muted)}
+.service-group{margin-top:34px}
+.service-group-heading{display:grid;grid-template-columns:42px 1fr;gap:16px;align-items:start;margin-bottom:16px}
+.service-group-heading>span{display:grid;place-items:center;width:34px;height:34px;background:var(--navy);color:#fff;font-size:11px;font-weight:800}
+.service-group-heading h3{margin:0 0 5px;font-family:"Inter Tight",sans-serif;font-size:28px;letter-spacing:-.03em}
+.service-group-heading p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+.service-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.service-card-grid-education{grid-template-columns:repeat(3,minmax(0,1fr))}
+.service-option{position:relative;display:block!important;margin:0!important;min-height:118px;padding:0!important;border:1px solid #ccd2da;background:#fff;cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.service-option:hover{border-color:var(--blue);box-shadow:0 8px 24px rgba(11,31,58,.08);transform:translateY(-1px)}
+.service-option input{position:absolute;opacity:0;pointer-events:none}
+.service-option span{display:flex;flex-direction:column;gap:8px;height:100%;padding:18px 18px 20px}
+.service-option strong{font-family:"Inter Tight",sans-serif;font-size:18px;line-height:1.15;color:var(--ink)}
+.service-option small{font-size:12px!important;font-weight:500!important;line-height:1.45!important;color:var(--muted)!important}
+.service-option:has(input:checked){border:2px solid var(--navy);background:#eef3fb}
+.service-option:has(input:checked)::after{content:"Selecionado";position:absolute;right:10px;bottom:10px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.service-option:has(input:focus-visible){outline:3px solid rgba(0,48,135,.2);outline-offset:2px}
+@media(max-width:960px){
+  .service-card-grid,.service-card-grid-education{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .service-picker-head{display:block}
+  .service-picker-head p:last-child{margin-top:8px}
+  .service-card-grid,.service-card-grid-education{grid-template-columns:1fr}
+  .service-option{min-height:auto}
+  .service-group-heading{grid-template-columns:34px 1fr}
+  .service-group-heading h3{font-size:24px}
+}
