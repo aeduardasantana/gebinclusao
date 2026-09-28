@@ -45,37 +45,50 @@
         <label>Tipo de atividade
           <select id="codigoServico" name="codigoServico" required>
             <option value="">Selecione</option>
-            <optgroup label="Empresarial e eventos">
-              <option value="FEP-SIM-EMP">Empresarial — treinamentos, reuniões e seleções</option>
-              <option value="FEP-SIM-CONF-H">Conferência — palestra, oficina, seminário ou congresso (hora avulsa)</option>
-              <option value="FEP-SIM-CONF-D">Conferência — diária</option>
-              <option value="FEP-SIM-SOCIAL">Social — casamento, formatura, premiação, culto e similares</option>
-              <option value="FEP-SIM-ARTCULT">Artístico e cultural — espetáculo, show, cinema e similares</option>
-              <option value="FEP-SIM-LAZER">Lazer e turismo — parque, museu, excursão e similares</option>
-              <option value="FEP-PED-AVULSA">Atividade pedagógica avulsa — passeio, feira ou evento escolar</option>
+
+            <optgroup label="Interpretação simultânea">
+              <option value="FEP-SIM-PROVA-BAS">Aplicação de provas — nível básico</option>
+              <option value="FEP-SIM-PROVA-MED">Aplicação de provas — nível médio</option>
+              <option value="FEP-SIM-PROVA-SUP">Aplicação de provas — nível superior</option>
+              <option value="FEP-SIM-ARTCULT">Artístico e cultural — espetáculos, shows, cinemas e similares</option>
+              <option value="FEP-SIM-JUR-ATEND">Atendimento jurídico — consultas a advogados, Ministério Público e similares</option>
+              <option value="FEP-SIM-JUR-AUD">Audiência jurídica — audiências, julgamentos, juizados, delegacias e similares</option>
+              <option value="FEP-SIM-CONF-COORD-D">Conferência — coordenação de equipe TILS — diária</option>
+              <option value="FEP-SIM-CONF-COORD-H">Conferência — coordenação de equipe TILS — hora</option>
+              <option value="FEP-SIM-CONF-D">Conferência — palestras, oficinas, seminários e congressos — diária</option>
+              <option value="FEP-SIM-CONF-H">Conferência — palestras, oficinas, seminários e congressos — hora avulsa</option>
+              <option value="FEP-SIM-LAZER">Lazer e turismo — parques, museus, clubes, excursões e similares</option>
+              <option value="FEP-SIM-SAUDE">Saúde — consultas, exames e tratamentos</option>
+              <option value="FEP-SIM-SAUDE-CIR">Saúde — ambiente cirúrgico — parto/cirurgias</option>
+              <option value="FEP-SIM-PUBLICO">Serviços públicos e sociais</option>
+              <option value="FEP-SIM-EMP">Empresarial — treinamentos, seleções de emprego, reuniões e similares</option>
+              <option value="FEP-SIM-SOCIAL">Social — casamentos, bodas, batizados, formaturas, premiações, velórios e cultos</option>
+              <option value="FEP-PREP-CULT">Preparação e estudo prévio — cultural</option>
+              <option value="FEP-PED-AVULSA">Atividade pedagógica avulsa — passeios, saídas de campo, feiras e eventos escolares</option>
+              <option value="FEP-LIDER-AUT">Acompanhamento de liderança ou autoridade</option>
+              <option value="FEP-REMOTO">Interpretação simultânea remota</option>
             </optgroup>
-            <optgroup label="Atendimentos e serviços">
-              <option value="FEP-SIM-PUBLICO">Serviço público ou social</option>
-              <option value="FEP-SIM-JUR-ATEND">Atendimento jurídico</option>
-              <option value="FEP-SIM-JUR-AUD">Audiência jurídica</option>
-              <option value="FEP-SIM-SAUDE">Saúde — consulta, exame ou tratamento</option>
-              <option value="FEP-SIM-SAUDE-CIR">Saúde — parto ou cirurgia</option>
-            </optgroup>
-            <optgroup label="Provas e concursos">
-              <option value="FEP-SIM-PROVA-BAS">Aplicação de prova — nível básico</option>
-              <option value="FEP-SIM-PROVA-MED">Aplicação de prova — nível médio</option>
-              <option value="FEP-SIM-PROVA-SUP">Aplicação de prova — nível superior</option>
-            </optgroup>
+
             <optgroup label="Audiovisual">
-              <option value="FEP-AV-PROP">Vídeo de propaganda de marca</option>
-              <option value="FEP-AV-FILME">Tradução de filme</option>
+              <option value="FEP-AV-PROP">Propaganda de marcas — vídeo de propaganda</option>
+              <option value="FEP-AV-POL">Programas políticos — vinheta, propaganda, horário ou campanha eleitoral</option>
+              <option value="FEP-AV-DEBATE">Debate político</option>
+              <option value="FEP-AV-FILME">Tradução de filmes</option>
               <option value="FEP-AV-FILME-TEC">Tradução de filme técnico</option>
               <option value="FEP-AV-LEG">Tradução e legendagem</option>
               <option value="FEP-AV-DUB">Tradução e dublagem</option>
-              <option value="FEP-AV-WEB">Vídeo para Internet</option>
-              <option value="FEP-AV-INST">Vídeo institucional / curso / treinamento</option>
-              <option value="FEP-AV-VIDEOCALL">Videochamada emergencial</option>
-              <option value="FEP-AV-LIVE">Interpretação ao vivo para TV ou Internet</option>
+              <option value="FEP-AV-TV-REC">Interpretação recorrente em programa de TV</option>
+              <option value="FEP-AV-WEB">Tradução de vídeo para Internet</option>
+              <option value="FEP-AV-INST">Tradução de vídeo institucional — cursos e treinamentos</option>
+              <option value="FEP-AV-VIDEOCALL">Videochamada — atendimentos emergenciais</option>
+              <option value="FEP-AV-STUDIO">Diária em estúdio de gravação</option>
+              <option value="FEP-AV-LIVE">Interpretação ao vivo para TV e Internet — lives</option>
+            </optgroup>
+
+            <optgroup label="Interpretação educacional">
+              <option value="FEP-EDU-BAS">Educação básica e técnica — 20 horas semanais</option>
+              <option value="FEP-EDU-SUP">Ensino superior, tecnológico e especialização — 20 horas semanais</option>
+              <option value="FEP-EDU-POS">Mestrado e doutorado — 20 horas semanais</option>
             </optgroup>
           </select>
         </label>
