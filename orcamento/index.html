@@ -242,11 +242,12 @@
         </div>
 
         <div class="field-grid three">
-          <label>Horário inicial
+          <label>Horário inicial / início da disponibilidade
             <input id="horario" name="horario" type="time" required>
           </label>
-          <label>Duração estimada (horas)
-            <input id="duracaoHoras" name="duracaoHoras" type="number" min="0.25" step="0.25" value="2" required>
+          <label>Horário final / liberação prevista
+            <input id="horarioFinal" name="horarioFinal" type="time" required>
+            <small>O sistema calcula a duração e arredonda para hora cheia.</small>
           </label>
           <label>Quantidade de dias
             <input id="qtdDias" name="qtdDias" type="number" min="1" step="1" value="1" required>
@@ -266,6 +267,7 @@
         <div class="choice-grid">
           <label class="choice"><input type="checkbox" id="gravacaoStreaming" name="gravacaoStreaming"><span>Haverá gravação ou streaming</span></label>
           <label class="choice"><input type="checkbox" id="doencaContagiosa" name="doencaContagiosa"><span>Há contexto com doença contagiosa / insalubridade</span></label>
+          <label class="choice"><input type="checkbox" id="temPessoaSurdocega" name="temPessoaSurdocega"><span>Haverá pessoa surdocega que necessite de guia-interpretação</span></label>
         </div>
 
         <div class="budget-actions">
@@ -280,9 +282,33 @@
         </div>
 
         <div id="presential-fields">
-          <label>Endereço completo do serviço
-            <input id="enderecoEvento" name="enderecoEvento" type="text" placeholder="Rua, número, bairro, cidade e UF">
-          </label>
+          <div class="field-grid two">
+            <label>CEP do serviço
+              <input id="cepEvento" name="cepEvento" type="text" inputmode="numeric" placeholder="00000-000">
+            </label>
+            <label>Logradouro
+              <input id="logradouroEvento" name="logradouroEvento" type="text" placeholder="Rua, avenida, rodovia...">
+            </label>
+          </div>
+          <div class="field-grid three">
+            <label>Número
+              <input id="numeroEvento" name="numeroEvento" type="text">
+            </label>
+            <label>Complemento
+              <input id="complementoEvento" name="complementoEvento" type="text" placeholder="Opcional">
+            </label>
+            <label>Bairro
+              <input id="bairroEvento" name="bairroEvento" type="text">
+            </label>
+          </div>
+          <div class="field-grid two">
+            <label>Cidade
+              <input id="cidadeEvento" name="cidadeEvento" type="text">
+            </label>
+            <label>UF
+              <input id="ufEvento" name="ufEvento" type="text" maxlength="2" placeholder="GO">
+            </label>
+          </div>
 
           <div class="field-grid two">
             <label>Como será o deslocamento?
@@ -294,10 +320,20 @@
                 <option value="outro">Outro</option>
               </select>
             </label>
-            <label>Distância estimada de ida (km)
-              <input id="distanciaIdaKm" name="distanciaIdaKm" type="number" min="0" step="0.1" value="0">
+            <label id="tipo-onibus-wrap" hidden>Tipo de viagem de ônibus
+              <select id="tipoOnibus" name="tipoOnibus">
+                <option value="">Selecione</option>
+                <option value="intermunicipal">Intermunicipal</option>
+                <option value="interestadual">Interestadual</option>
+              </select>
             </label>
           </div>
+
+          <div class="quote-route-notice">
+            <strong>Distância de deslocamento</strong>
+            <p>A quilometragem deverá ser calculada automaticamente pelo sistema a partir do endereço do evento e da origem de cada profissional. O cliente não informa a distância manualmente.</p>
+          </div>
+          <input id="distanciaIdaKm" name="distanciaIdaKm" type="hidden" value="0">
 
           <div class="field-grid two">
             <label>Valor estimado de passagem (R$)
@@ -359,15 +395,18 @@
             <input id="nome" name="nome" type="text" autocomplete="name" required>
           </label>
         </div>
-
         <div class="field-grid two">
+          <label>Cargo ou função de quem está preenchendo
+            <input id="cargoResponsavel" name="cargoResponsavel" type="text" placeholder="Ex.: RH, Compras, Coordenação, Produção">
+          </label>
           <label>Empresa ou instituição
             <input id="empresa" name="empresa" type="text" autocomplete="organization">
           </label>
-          <label>CPF ou CNPJ
-            <input id="documento" name="documento" type="text">
-          </label>
         </div>
+
+        <label>CPF ou CNPJ
+          <input id="documento" name="documento" type="text">
+        </label>
 
         <div class="field-grid two">
           <label>E-mail
@@ -408,9 +447,20 @@
           </label>
         </div>
 
-        <label>Observação sobre pagamento (opcional)
-          <textarea id="observacaoPagamento" name="observacaoPagamento" rows="3" placeholder="Ex.: empenho, boleto ou condição administrativa específica."></textarea>
-        </label>
+        <div class="field-grid two">
+          <label>Forma de pagamento
+            <select id="formaPagamento" name="formaPagamento">
+              <option value="PIX">PIX</option>
+              <option value="Transferência">Transferência</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Cartão">Cartão</option>
+              <option value="Outra">Outra</option>
+            </select>
+          </label>
+          <label>Observação sobre pagamento (opcional)
+            <textarea id="observacaoPagamento" name="observacaoPagamento" rows="3" placeholder="Ex.: empenho, boleto, prazo de faturamento ou condição administrativa específica."></textarea>
+          </label>
+        </div>
 
         <label class="consent budget-consent">
           <input id="consentimento" type="checkbox" required>
