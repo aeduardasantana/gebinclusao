@@ -371,11 +371,10 @@ function requestCalculation(payload) {
   const transporte = String(payload.transporteTipo || '').toLowerCase();
   if (['carro','veiculo','veículo particular'].includes(transporte)) {
     const km = Number(payload.distanciaIdaKm || 0);
-    if (km <= 0) {
-      throw new Error('O cálculo automático da rota pelo Google ainda precisa ser ativado no backend antes de emitir orçamento com veículo particular.');
+    if (km > 0) {
+      deslocamento = km * 2 * 1.5;
+      if (days > 1 && payload.retornoDiario === true) deslocamento *= days;
     }
-    deslocamento = km * 2 * 1.5;
-    if (days > 1 && payload.retornoDiario === true) deslocamento *= days;
   }
 
   let passagem = 0;
