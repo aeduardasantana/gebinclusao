@@ -11,6 +11,8 @@ const modalidade = document.getElementById('modalidade');
 const presentialFields = document.getElementById('presential-fields');
 const precisaNf = document.getElementById('precisaNf');
 const fiscalFields = document.getElementById('fiscal-fields');
+const transporteTipo = document.getElementById('transporteTipo');
+const tipoOnibusWrap = document.getElementById('tipo-onibus-wrap');
 const result = document.getElementById('budget-result');
 const success = document.getElementById('result-success');
 const errorBox = document.getElementById('result-error');
@@ -68,6 +70,15 @@ precisaNf.addEventListener('change', () => {
   fiscalFields.hidden = !precisaNf.checked;
 });
 
+function syncTransport() {
+  if (!transporteTipo || !tipoOnibusWrap) return;
+  tipoOnibusWrap.hidden = transporteTipo.value !== 'onibus';
+  const tipoOnibus = document.getElementById('tipoOnibus');
+  if (tipoOnibus) tipoOnibus.required = transporteTipo.value === 'onibus';
+}
+transporteTipo?.addEventListener('change', syncTransport);
+syncTransport();
+
 function getNumber(id) {
   const value = document.getElementById(id)?.value;
   return value === '' || value == null ? 0 : Number(value);
@@ -103,9 +114,30 @@ function formatMoney(value) {
   return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function calculateDurationHours(start, end) {
+  if (!start || !end) return 0;
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  let minutes = (eh * 60 + em) - (sh * 60 + sm);
+  if (minutes <= 0) minutes += 24 * 60;
+  return Math.max(1, Math.ceil(minutes / 60));
+}
+
+function buildEventAddress() {
+  return [
+    text('logradouroEvento'),
+    text('numeroEvento'),
+    text('complementoEvento'),
+    text('bairroEvento'),
+    text('cidadeEvento'),
+    text('ufEvento'),
+    text('cepEvento')
+  ].filter(Boolean).join(', ');
+}
+
 function buildPayload() {
   const modalidadeValue = text('modalidade');
-  const duration = getNumber('duracaoHoras');
+  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
   const dias = Math.max(1, getNumber('qtdDias') || 1);
   const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
 
@@ -115,7 +147,11 @@ function buildPayload() {
     'Histórico com intérpretes: ' + text('historicoInterprete'),
     checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
     text('orcamentoDisponivel') ? 'Orçamento disponível informado: R$ ' + text('orcamentoDisponivel') : '',
-    text('enderecoEvento') ? 'Endereço do serviço: ' + text('enderecoEvento') : '',
+    buildEventAddress() ? 'Endereço do serviço: ' + buildEventAddress() : '',
+    text('cargoResponsavel') ? 'Cargo/função do responsável: ' + text('cargoResponsavel') : '',
+    checked('temPessoaSurdocega') ? 'Há pessoa surdocega com necessidade de guia-interpretação.' : '',
+    text('tipoOnibus') ? 'Ônibus: ' + text('tipoOnibus') : '',
+    text('formaPagamento') ? 'Forma de pagamento: ' + text('formaPagamento') : '',
     checked('forneceAgua') ? 'Contratante fornecerá água.' : '',
     checked('precisaNf') && text('razaoSocial') ? 'Razão social: ' + text('razaoSocial') : '',
     checked('precisaNf') && text('documentoFiscal') ? 'Documento fiscal: ' + text('documentoFiscal') : '',
@@ -137,6 +173,7 @@ function buildPayload() {
     modalidade: modalidadeValue,
     dataServico: text('dataServico'),
     horario: text('horario'),
+    horarioFinal: text('horarioFinal'),
     duracao: String(duration) + ' hora(s)',
     duracaoHoras: duration,
     qtdDias: dias,
@@ -166,7 +203,18 @@ function buildPayload() {
     inscricaoFiscal: text('inscricaoFiscal'),
     emailFiscal: text('emailFiscal'),
     enderecoFiscal: text('enderecoFiscal'),
-    enderecoEvento: text('enderecoEvento'),
+    enderecoEvento: buildEventAddress(),
+    cepEvento: text('cepEvento'),
+    logradouroEvento: text('logradouroEvento'),
+    numeroEvento: text('numeroEvento'),
+    complementoEvento: text('complementoEvento'),
+    bairroEvento: text('bairroEvento'),
+    cidadeEvento: text('cidadeEvento'),
+    ufEvento: text('ufEvento'),
+    cargoResponsavel: text('cargoResponsavel'),
+    tipoOnibus: text('tipoOnibus'),
+    temPessoaSurdocega: checked('temPessoaSurdocega'),
+    formaPagamento: text('formaPagamento'),
     publicoSurdo: getNumber('publicoSurdo'),
     historicoInterprete: text('historicoInterprete'),
     orcamentoDisponivel: getNumber('orcamentoDisponivel')
@@ -274,7 +322,11 @@ function requestCalculation(payload) {
   let deslocamento = 0;
   const transporte = String(payload.transporteTipo || '').toLowerCase();
   if (['carro','veiculo','veículo particular'].includes(transporte)) {
-    deslocamento = Number(payload.distanciaIdaKm || 0) * 2 * 1.5;
+    const km = Number(payload.distanciaIdaKm || 0);
+    if (km <= 0) {
+      throw new Error('O cálculo automático da rota pelo Google ainda precisa ser ativado no backend antes de emitir orçamento com veículo particular.');
+    }
+    deslocamento = km * 2 * 1.5;
     if (days > 1 && payload.retornoDiario === true) deslocamento *= days;
   }
 
