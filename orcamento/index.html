@@ -236,23 +236,42 @@
               <option value="Remota">Online / remota</option>
             </select>
           </label>
-          <label>Data do serviço
-            <input id="dataServico" name="dataServico" type="date" required>
-          </label>
+          <div>
+            <span class="field-label">Programação do serviço</span>
+            <p>Informe cada dia separadamente. O sistema soma automaticamente a carga horária total.</p>
+          </div>
         </div>
 
-        <div class="field-grid three">
-          <label>Horário inicial / início da disponibilidade
-            <input id="horario" name="horario" type="time" required>
-          </label>
-          <label>Horário final / liberação prevista
-            <input id="horarioFinal" name="horarioFinal" type="time" required>
-            <small>O sistema calcula a duração e arredonda para hora cheia.</small>
-          </label>
-          <label>Quantidade de dias
-            <input id="qtdDias" name="qtdDias" type="number" min="1" step="1" value="1" required>
-          </label>
+        <div id="service-days">
+          <div class="service-day" data-day-index="0">
+            <div class="field-grid three">
+              <label>Data
+                <input class="service-day-date" type="date" required>
+              </label>
+              <label>Horário inicial / início da disponibilidade
+                <input class="service-day-start" type="time" required>
+              </label>
+              <label>Horário final / liberação prevista
+                <input class="service-day-end" type="time" required>
+                <small>A duração de cada dia é arredondada para hora cheia.</small>
+              </label>
+            </div>
+          </div>
         </div>
+
+        <div class="budget-actions" style="justify-content:flex-start">
+          <button id="add-service-day" class="button button-ghost-dark" type="button">+ Adicionar outro dia</button>
+        </div>
+
+        <div class="quote-route-notice">
+          <strong>Carga horária total</strong>
+          <p id="total-service-hours">Preencha a programação para calcular a carga horária.</p>
+        </div>
+
+        <input id="dataServico" name="dataServico" type="hidden">
+        <input id="horario" name="horario" type="hidden">
+        <input id="horarioFinal" name="horarioFinal" type="hidden">
+        <input id="qtdDias" name="qtdDias" type="hidden" value="1">
 
         <div class="field-grid two">
           <label>Quantidade estimada de pessoas surdas
