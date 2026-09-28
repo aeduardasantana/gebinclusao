@@ -258,10 +258,23 @@
           <label>Quantidade estimada de pessoas surdas
             <input id="publicoSurdo" name="publicoSurdo" type="number" min="0" step="1" placeholder="Ex.: 4">
           </label>
-          <label>Quantidade de intérpretes desejada
-            <input id="qtdInterpretes" name="qtdInterpretes" type="number" min="1" step="1" value="1">
-            <small>O sistema aplica automaticamente a equipe mínima prevista para o serviço.</small>
-          </label>
+          <div class="team-recommendation">
+            <span class="field-label">Equipe de intérpretes</span>
+            <p id="team-recommendation-text">Informe o serviço e os horários para o sistema sugerir a equipe.</p>
+            <div class="choice-grid choice-grid-stack">
+              <label class="choice">
+                <input type="radio" name="teamChoice" value="recommended" checked>
+                <span id="team-keep-label">Manter quantidade recomendada</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="teamChoice" value="custom">
+                <span>Quero alterar a quantidade</span>
+              </label>
+            </div>
+            <label id="custom-team-wrap" hidden>Quantidade desejada
+              <input id="qtdInterpretes" name="qtdInterpretes" type="number" min="1" step="1" value="1">
+            </label>
+          </div>
         </div>
 
         <div class="choice-grid">
@@ -315,16 +328,9 @@
               <select id="transporteTipo" name="transporteTipo">
                 <option value="carro">Veículo particular</option>
                 <option value="fornecido">Transporte fornecido pelo contratante</option>
-                <option value="onibus">Ônibus</option>
+                <option value="onibus">Ônibus (Intermunicipal/Interestadual)</option>
                 <option value="aviao">Avião</option>
                 <option value="outro">Outro</option>
-              </select>
-            </label>
-            <label id="tipo-onibus-wrap" hidden>Tipo de viagem de ônibus
-              <select id="tipoOnibus" name="tipoOnibus">
-                <option value="">Selecione</option>
-                <option value="intermunicipal">Intermunicipal</option>
-                <option value="interestadual">Interestadual</option>
               </select>
             </label>
           </div>
@@ -335,29 +341,11 @@
           </div>
           <input id="distanciaIdaKm" name="distanciaIdaKm" type="hidden" value="0">
 
-          <div class="field-grid two">
-            <label>Valor estimado de passagem (R$)
-              <input id="valorPassagem" name="valorPassagem" type="number" min="0" step="0.01" value="0">
-            </label>
-            <label>Valor estimado de hospedagem (R$)
-              <input id="valorHospedagem" name="valorHospedagem" type="number" min="0" step="0.01" value="0">
-            </label>
-          </div>
-
           <div class="choice-grid">
             <label class="choice"><input type="checkbox" id="retornoDiario" name="retornoDiario"><span>Haverá retorno diário para eventos com mais de um dia</span></label>
             <label class="choice"><input type="checkbox" id="forneceAlimentacao" name="forneceAlimentacao"><span>O contratante fornecerá alimentação</span></label>
             <label class="choice"><input type="checkbox" id="forneceAgua" name="forneceAgua"><span>O contratante fornecerá água</span></label>
           </div>
-        </div>
-
-        <div class="field-grid two">
-          <label>Outros custos previstos (R$)
-            <input id="valorOutrosCustos" name="valorOutrosCustos" type="number" min="0" step="0.01" value="0">
-          </label>
-          <label>Orçamento disponível para a contratação (opcional)
-            <input id="orcamentoDisponivel" name="orcamentoDisponivel" type="number" min="0" step="0.01" placeholder="Não altera o cálculo técnico">
-          </label>
         </div>
 
         <label>O contratante já utilizou intérpretes em uma demanda semelhante?
