@@ -89,9 +89,14 @@ function checked(id) {
   return Boolean(document.getElementById(id)?.checked);
 }
 
+function selectedServiceInput() {
+  return document.querySelector('input[name="codigoServico"]:checked');
+}
+
 function serviceLabel() {
-  const select = document.getElementById('codigoServico');
-  return select.options[select.selectedIndex]?.text || '';
+  const selected = selectedServiceInput();
+  if (!selected) return '';
+  return selected.closest('.service-option')?.querySelector('strong')?.textContent.trim() || '';
 }
 
 function formatMoney(value) {
@@ -128,7 +133,7 @@ function buildPayload() {
     cidadeUf: text('cidadeUf'),
 
     servico: serviceLabel(),
-    codigoServico: text('codigoServico'),
+    codigoServico: selectedServiceInput()?.value || '',
     modalidade: modalidadeValue,
     dataServico: text('dataServico'),
     horario: text('horario'),
