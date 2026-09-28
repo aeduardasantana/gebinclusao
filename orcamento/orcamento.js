@@ -136,9 +136,13 @@ function recommendedTeamSize() {
   const code = selectedServiceInput()?.value || '';
   const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
   const rule = SERVICE_RULES[code] || {};
-  let team = Math.max(1, Number(rule.team || 1));
+  let team = 1;
 
   if (duration > 1) team = Math.max(team, 2);
+
+  if (Number(rule.team || 1) > team) {
+    team = Number(rule.team || 1);
+  }
 
   if (
     (code === 'FEP-SIM-CONF-D' || code === 'FEP-SIM-CONF-H') &&
@@ -156,38 +160,24 @@ function buildTeamRuleText() {
   const selected = selectedServiceInput();
 
   if (!selected || !text('horario') || !text('horarioFinal')) {
-    return 'Para serviços com duração superior a 1 hora, o orçamento considera no mínimo 2 intérpretes em revezamento. Algumas categorias exigem equipe maior.';
+    return 'Em demandas mais longas, o GEB pode recomendar mais de 1 intérprete para permitir revezamento. A contratação de profissionais adicionais é opcional.';
   }
 
-  if (recommendation >= 3) {
-    return 'Para esta demanda, a regra aplicável indica equipe mínima de ' +
+  if (recommendation > 1) {
+    return 'Para esta demanda, o GEB recomenda ' +
       recommendation +
-      ' intérpretes. O campo abaixo já foi ajustado para esse mínimo.';
+      ' intérpretes para organização do revezamento. A contratação dessa quantidade é opcional; você pode manter 1 intérprete ou informar uma quantidade maior.';
   }
 
-  if (duration > 1) {
-    return 'Como a duração informada é superior a 1 hora, o orçamento considera no mínimo 2 intérpretes em revezamento. O campo abaixo já foi ajustado para esse mínimo.';
-  }
-
-  return 'Para esta demanda, a quantidade mínima aplicável é de ' +
-    recommendation +
-    ' intérprete(s). Você pode aumentar a equipe conforme a necessidade.';
+  return 'Para esta demanda, não há recomendação automática de ampliar a equipe. Você pode contratar 1 intérprete ou informar uma quantidade maior.';
 }
 
 function syncTeamRecommendation() {
-  const recommendation = recommendedTeamSize();
   const out = document.getElementById('team-recommendation-text');
   const input = document.getElementById('qtdInterpretes');
 
   if (out) out.textContent = buildTeamRuleText();
-
-  if (input) {
-    input.min = String(recommendation);
-    const current = Number(input.value || 0);
-    if (!current || current < recommendation) {
-      input.value = String(recommendation);
-    }
-  }
+  if (input) input.min = '1';
 }
 
 document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
@@ -195,20 +185,19 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
 });
 document.getElementById('horario')?.addEventListener('change', syncTeamRecommendation);
 document.getElementById('horarioFinal')?.addEventListener('change', syncTeamRecommendation);
-document.getElementById('qtdInterpretes')?.addEventListener('change', syncTeamRecommendation);
 syncTeamRecommendation();
 
 function buildPayload() {
   const modalidadeValue = text('modalidade');
   const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
   const dias = Math.max(1, getNumber('qtdDias') || 1);
-  const minimumTeam = recommendedTeamSize();
-  const qtdInt = Math.max(minimumTeam, getNumber('qtdInterpretes') || minimumTeam);
+  const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
 
   const detalhesPartes = [
     text('detalhes'),
     'Regra de equipe: ' + buildTeamRuleText(),
-    'Quantidade de intérpretes considerada no orçamento: ' + Math.max(recommendedTeamSize(), getNumber('qtdInterpretes') || recommendedTeamSize()),
+    'Quantidade recomendada pelo GEB: ' + recommendedTeamSize(),
+    'Quantidade escolhida pelo cliente: ' + Math.max(1, getNumber('qtdInterpretes') || 1),
     text('publicoSurdo') ? 'Público surdo estimado: ' + text('publicoSurdo') : '',
     'Histórico com intérpretes: ' + text('historicoInterprete'),
     checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
@@ -333,8 +322,7 @@ function requestCalculation(payload) {
 
   const duration = Number(payload.duracaoHoras || 0);
   const days = Math.max(1, Number(payload.qtdDias || 1));
-  let team = Math.max(1, Number(payload.qtdInterpretes || 1), Number(rule.team || 1));
-  if (duration > 1) team = Math.max(team, 2);
+  let team = Math.max(1, Number(payload.qtdInterpretes || 1));
 
   let honorarios = 0;
   if (rule.type === 'hour') {
