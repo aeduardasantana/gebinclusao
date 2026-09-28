@@ -260,19 +260,13 @@
           </label>
           <div class="team-recommendation">
             <span class="field-label">Equipe de intérpretes</span>
-            <p id="team-recommendation-text">Informe o serviço e os horários para o sistema sugerir a equipe.</p>
-            <div class="choice-grid choice-grid-stack">
-              <label class="choice">
-                <input type="radio" name="teamChoice" value="recommended" checked>
-                <span id="team-keep-label">Manter quantidade recomendada</span>
-              </label>
-              <label class="choice">
-                <input type="radio" name="teamChoice" value="custom">
-                <span>Quero alterar a quantidade</span>
-              </label>
+            <div class="quote-route-notice" id="team-rule-box">
+              <strong id="team-rule-title">Regra de equipe</strong>
+              <p id="team-recommendation-text">Para serviços com duração superior a 1 hora, o orçamento considera no mínimo 2 intérpretes em revezamento. Algumas categorias exigem equipe maior.</p>
             </div>
-            <label id="custom-team-wrap" hidden>Quantidade desejada
+            <label>Quantidade de intérpretes
               <input id="qtdInterpretes" name="qtdInterpretes" type="number" min="1" step="1" value="1">
+              <small id="team-quantity-help">O sistema ajustará automaticamente o mínimo aplicável. Você pode aumentar a quantidade, mas não reduzir abaixo da exigência do serviço.</small>
             </label>
           </div>
         </div>
