@@ -985,3 +985,51 @@ button{cursor:pointer}
   }
   .hero-visual p{font-size:26px}
 }
+
+
+/* Sistema de orçamento */
+.budget-app{background:var(--paper)}
+.quote-page-hero-live{max-width:var(--max);margin:0 auto;padding:clamp(74px,8vw,112px) var(--pad) 54px}
+.quote-page-hero-live h1{max-width:1050px}
+.budget-shell{max-width:1180px;margin:0 auto;padding:0 var(--pad) clamp(84px,9vw,120px)}
+.budget-progress{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:#fff;margin-bottom:18px}
+.budget-progress span{padding:15px 16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-right:1px solid var(--line)}
+.budget-progress span:last-child{border-right:0}
+.budget-progress span.active{background:var(--navy);color:#fff}
+.budget-progress span.done{background:#eaf0fa;color:var(--navy)}
+.budget-form{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
+.budget-step{border:0;margin:0;padding:clamp(28px,5vw,54px)}
+.budget-step-heading{margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.budget-step-heading h2{margin:8px 0 0;font-family:"Inter Tight";font-size:clamp(36px,4vw,52px);line-height:1;letter-spacing:-.045em}
+.budget-step label{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;font-size:12px;font-weight:700}
+.budget-step label small{font-weight:500;color:var(--muted);line-height:1.45}
+.budget-step input,.budget-step select,.budget-step textarea{width:100%;padding:14px 15px;border:1px solid #cfd3d9;background:#fff;color:var(--ink);outline:none}
+.budget-step input:focus,.budget-step select:focus,.budget-step textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,48,135,.08)}
+.budget-step textarea{resize:vertical}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:8px 0 20px}
+.choice-grid-stack{grid-template-columns:1fr}
+.choice{flex-direction:row!important;align-items:flex-start!important;padding:16px;border:1px solid var(--line);margin:0!important;font-weight:600!important;background:#fafafa}
+.choice input{width:auto!important;margin-top:2px}
+.fiscal-fields{padding:20px;background:#f5f7fa;border:1px solid var(--line);margin-bottom:18px}
+.budget-actions{display:flex;justify-content:flex-end;margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}
+.budget-actions.split{justify-content:space-between;gap:12px}
+.budget-consent{flex-direction:row!important;align-items:flex-start!important;font-weight:500!important;line-height:1.5}
+.budget-consent input{width:auto!important;margin-top:3px}
+.budget-result{padding:clamp(30px,5vw,54px);background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}
+.budget-result h2{font-family:"Inter Tight";font-size:clamp(38px,4.6vw,58px);margin:10px 0 26px;letter-spacing:-.045em}
+.result-status{margin:0;color:var(--blue);font-size:11px;font-weight:800;letter-spacing:.13em}
+.result-values{border-top:1px solid var(--line)}
+.result-value-row{display:flex;justify-content:space-between;gap:24px;padding:15px 0;border-bottom:1px solid var(--line)}
+.result-value-row span{color:var(--muted)}
+.result-value-row strong{font-size:18px}
+.result-message{max-width:780px;color:var(--muted);line-height:1.7;margin:28px 0}
+.result-error{border-left:5px solid #8d1b1b;padding-left:24px}
+@media(max-width:760px){
+  .budget-progress{grid-template-columns:1fr 1fr}
+  .budget-progress span:nth-child(2){border-right:0}
+  .budget-progress span:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .choice-grid{grid-template-columns:1fr}
+  .budget-actions.split{flex-direction:column-reverse}
+  .budget-actions .button{width:100%}
+  .result-value-row{align-items:flex-start}
+}
