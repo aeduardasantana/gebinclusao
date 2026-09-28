@@ -271,8 +271,6 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
   el.addEventListener('change', syncTeamRecommendation);
 });
 
-updateLegacyScheduleFields();
-
 function buildPayload() {
   const modalidadeValue = text('modalidade');
   const diasServico = getServiceDays();
@@ -409,6 +407,9 @@ const SERVICE_RULES = {
 };
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
+
+// Inicialização somente depois que SERVICE_RULES já existe.
+updateLegacyScheduleFields();
 
 function requestCalculation(payload) {
   const rule = SERVICE_RULES[payload.codigoServico];
