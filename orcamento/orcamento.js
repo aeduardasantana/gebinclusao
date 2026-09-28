@@ -12,7 +12,6 @@ const presentialFields = document.getElementById('presential-fields');
 const precisaNf = document.getElementById('precisaNf');
 const fiscalFields = document.getElementById('fiscal-fields');
 const transporteTipo = document.getElementById('transporteTipo');
-const tipoOnibusWrap = document.getElementById('tipo-onibus-wrap');
 const result = document.getElementById('budget-result');
 const success = document.getElementById('result-success');
 const errorBox = document.getElementById('result-error');
@@ -71,10 +70,8 @@ precisaNf.addEventListener('change', () => {
 });
 
 function syncTransport() {
-  if (!transporteTipo || !tipoOnibusWrap) return;
-  tipoOnibusWrap.hidden = transporteTipo.value !== 'onibus';
-  const tipoOnibus = document.getElementById('tipoOnibus');
-  if (tipoOnibus) tipoOnibus.required = transporteTipo.value === 'onibus';
+  // A opção de ônibus já identifica que se trata de viagem
+  // intermunicipal ou interestadual. O backend tratará a logística.
 }
 transporteTipo?.addEventListener('change', syncTransport);
 syncTransport();
@@ -135,22 +132,74 @@ function buildEventAddress() {
   ].filter(Boolean).join(', ');
 }
 
+function recommendedTeamSize() {
+  const code = selectedServiceInput()?.value || '';
+  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
+  const rule = SERVICE_RULES[code] || {};
+  let team = Math.max(1, Number(rule.team || 1));
+
+  if (duration > 1) team = Math.max(team, 2);
+
+  if (
+    (code === 'FEP-SIM-CONF-D' || code === 'FEP-SIM-CONF-H') &&
+    duration > 6
+  ) {
+    team = Math.max(team, 3);
+  }
+
+  return team;
+}
+
+function syncTeamRecommendation() {
+  const recommendation = recommendedTeamSize();
+  const out = document.getElementById('team-recommendation-text');
+  const keep = document.getElementById('team-keep-label');
+  const customWrap = document.getElementById('custom-team-wrap');
+  const customInput = document.getElementById('qtdInterpretes');
+  const choice = document.querySelector('input[name="teamChoice"]:checked')?.value || 'recommended';
+
+  if (out) {
+    out.textContent =
+      'Quantidade recomendada para esta demanda: ' +
+      recommendation +
+      ' profissional(is).';
+  }
+  if (keep) {
+    keep.textContent =
+      'Manter ' + recommendation + ' profissional(is) recomendado(s)';
+  }
+
+  if (customWrap) customWrap.hidden = choice !== 'custom';
+  if (customInput && choice !== 'custom') customInput.value = String(recommendation);
+}
+
+document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
+  el.addEventListener('change', syncTeamRecommendation);
+});
+document.getElementById('horario')?.addEventListener('change', syncTeamRecommendation);
+document.getElementById('horarioFinal')?.addEventListener('change', syncTeamRecommendation);
+document.querySelectorAll('input[name="teamChoice"]').forEach(el => {
+  el.addEventListener('change', syncTeamRecommendation);
+});
+syncTeamRecommendation();
+
 function buildPayload() {
   const modalidadeValue = text('modalidade');
   const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
   const dias = Math.max(1, getNumber('qtdDias') || 1);
-  const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
+  const teamChoice = document.querySelector('input[name="teamChoice"]:checked')?.value || 'recommended';
+  const qtdInt = teamChoice === 'custom'
+    ? Math.max(1, getNumber('qtdInterpretes') || 1)
+    : recommendedTeamSize();
 
   const detalhesPartes = [
     text('detalhes'),
     text('publicoSurdo') ? 'Público surdo estimado: ' + text('publicoSurdo') : '',
     'Histórico com intérpretes: ' + text('historicoInterprete'),
     checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
-    text('orcamentoDisponivel') ? 'Orçamento disponível informado: R$ ' + text('orcamentoDisponivel') : '',
     buildEventAddress() ? 'Endereço do serviço: ' + buildEventAddress() : '',
     text('cargoResponsavel') ? 'Cargo/função do responsável: ' + text('cargoResponsavel') : '',
     checked('temPessoaSurdocega') ? 'Há pessoa surdocega com necessidade de guia-interpretação.' : '',
-    text('tipoOnibus') ? 'Ônibus: ' + text('tipoOnibus') : '',
     text('formaPagamento') ? 'Forma de pagamento: ' + text('formaPagamento') : '',
     checked('forneceAgua') ? 'Contratante fornecerá água.' : '',
     checked('precisaNf') && text('razaoSocial') ? 'Razão social: ' + text('razaoSocial') : '',
@@ -184,9 +233,9 @@ function buildPayload() {
     retornoDiario: modalidadeValue === 'Remota' ? false : checked('retornoDiario'),
     forneceAlimentacao: modalidadeValue === 'Remota' ? true : checked('forneceAlimentacao'),
     forneceAgua: modalidadeValue === 'Remota' ? true : checked('forneceAgua'),
-    valorPassagem: modalidadeValue === 'Remota' ? 0 : getNumber('valorPassagem'),
-    valorHospedagem: modalidadeValue === 'Remota' ? 0 : getNumber('valorHospedagem'),
-    valorOutrosCustos: getNumber('valorOutrosCustos'),
+    valorPassagem: 0,
+    valorHospedagem: 0,
+    valorOutrosCustos: 0,
 
     doencaContagiosa: checked('doencaContagiosa'),
     gravacaoStreaming: checked('gravacaoStreaming'),
@@ -212,12 +261,11 @@ function buildPayload() {
     cidadeEvento: text('cidadeEvento'),
     ufEvento: text('ufEvento'),
     cargoResponsavel: text('cargoResponsavel'),
-    tipoOnibus: text('tipoOnibus'),
     temPessoaSurdocega: checked('temPessoaSurdocega'),
     formaPagamento: text('formaPagamento'),
     publicoSurdo: getNumber('publicoSurdo'),
     historicoInterprete: text('historicoInterprete'),
-    orcamentoDisponivel: getNumber('orcamentoDisponivel')
+    orcamentoDisponivel: 0
   };
 }
 
@@ -257,9 +305,9 @@ const SERVICE_RULES = {
   'FEP-AV-STUDIO': {type:'fixedPlusInterpretation',base:300,team:1},
   'FEP-AV-LIVE': {type:'percentOfBase',base:0,team:2,percent:30},
 
-  'FEP-EDU-BAS': {type:'package',base:2016,team:1},
-  'FEP-EDU-SUP': {type:'package',base:2630.4,team:1},
-  'FEP-EDU-POS': {type:'package',base:3360,team:1}
+  'FEP-EDU-BAS': {type:'package',base:2016,team:2},
+  'FEP-EDU-SUP': {type:'package',base:2630.4,team:2},
+  'FEP-EDU-POS': {type:'package',base:3360,team:2}
 };
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
