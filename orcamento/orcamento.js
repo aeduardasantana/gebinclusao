@@ -185,7 +185,6 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
 });
 document.getElementById('horario')?.addEventListener('change', syncTeamRecommendation);
 document.getElementById('horarioFinal')?.addEventListener('change', syncTeamRecommendation);
-syncTeamRecommendation();
 
 function buildPayload() {
   const modalidadeValue = text('modalidade');
@@ -315,6 +314,9 @@ const SERVICE_RULES = {
 };
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
+
+// Executa somente depois de SERVICE_RULES estar inicializado.
+syncTeamRecommendation();
 
 function requestCalculation(payload) {
   const rule = SERVICE_RULES[payload.codigoServico];
