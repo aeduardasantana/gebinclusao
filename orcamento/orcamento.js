@@ -150,27 +150,44 @@ function recommendedTeamSize() {
   return team;
 }
 
+function buildTeamRuleText() {
+  const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
+  const recommendation = recommendedTeamSize();
+  const selected = selectedServiceInput();
+
+  if (!selected || !text('horario') || !text('horarioFinal')) {
+    return 'Para serviços com duração superior a 1 hora, o orçamento considera no mínimo 2 intérpretes em revezamento. Algumas categorias exigem equipe maior.';
+  }
+
+  if (recommendation >= 3) {
+    return 'Para esta demanda, a regra aplicável indica equipe mínima de ' +
+      recommendation +
+      ' intérpretes. O campo abaixo já foi ajustado para esse mínimo.';
+  }
+
+  if (duration > 1) {
+    return 'Como a duração informada é superior a 1 hora, o orçamento considera no mínimo 2 intérpretes em revezamento. O campo abaixo já foi ajustado para esse mínimo.';
+  }
+
+  return 'Para esta demanda, a quantidade mínima aplicável é de ' +
+    recommendation +
+    ' intérprete(s). Você pode aumentar a equipe conforme a necessidade.';
+}
+
 function syncTeamRecommendation() {
   const recommendation = recommendedTeamSize();
   const out = document.getElementById('team-recommendation-text');
-  const keep = document.getElementById('team-keep-label');
-  const customWrap = document.getElementById('custom-team-wrap');
-  const customInput = document.getElementById('qtdInterpretes');
-  const choice = document.querySelector('input[name="teamChoice"]:checked')?.value || 'recommended';
+  const input = document.getElementById('qtdInterpretes');
 
-  if (out) {
-    out.textContent =
-      'Quantidade recomendada para esta demanda: ' +
-      recommendation +
-      ' profissional(is).';
-  }
-  if (keep) {
-    keep.textContent =
-      'Manter ' + recommendation + ' profissional(is) recomendado(s)';
-  }
+  if (out) out.textContent = buildTeamRuleText();
 
-  if (customWrap) customWrap.hidden = choice !== 'custom';
-  if (customInput && choice !== 'custom') customInput.value = String(recommendation);
+  if (input) {
+    input.min = String(recommendation);
+    const current = Number(input.value || 0);
+    if (!current || current < recommendation) {
+      input.value = String(recommendation);
+    }
+  }
 }
 
 document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
@@ -178,22 +195,20 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
 });
 document.getElementById('horario')?.addEventListener('change', syncTeamRecommendation);
 document.getElementById('horarioFinal')?.addEventListener('change', syncTeamRecommendation);
-document.querySelectorAll('input[name="teamChoice"]').forEach(el => {
-  el.addEventListener('change', syncTeamRecommendation);
-});
+document.getElementById('qtdInterpretes')?.addEventListener('change', syncTeamRecommendation);
 syncTeamRecommendation();
 
 function buildPayload() {
   const modalidadeValue = text('modalidade');
   const duration = calculateDurationHours(text('horario'), text('horarioFinal'));
   const dias = Math.max(1, getNumber('qtdDias') || 1);
-  const teamChoice = document.querySelector('input[name="teamChoice"]:checked')?.value || 'recommended';
-  const qtdInt = teamChoice === 'custom'
-    ? Math.max(1, getNumber('qtdInterpretes') || 1)
-    : recommendedTeamSize();
+  const minimumTeam = recommendedTeamSize();
+  const qtdInt = Math.max(minimumTeam, getNumber('qtdInterpretes') || minimumTeam);
 
   const detalhesPartes = [
     text('detalhes'),
+    'Regra de equipe: ' + buildTeamRuleText(),
+    'Quantidade de intérpretes considerada no orçamento: ' + Math.max(recommendedTeamSize(), getNumber('qtdInterpretes') || recommendedTeamSize()),
     text('publicoSurdo') ? 'Público surdo estimado: ' + text('publicoSurdo') : '',
     'Histórico com intérpretes: ' + text('historicoInterprete'),
     checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
