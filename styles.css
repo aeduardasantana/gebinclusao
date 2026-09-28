@@ -1068,3 +1068,134 @@ button{cursor:pointer}
   .service-group-heading{grid-template-columns:34px 1fr}
   .service-group-heading h3{font-size:24px}
 }
+
+
+/* Orçamento: seleção de categorias mais compacta */
+.budget-app .service-picker{
+  display:grid;
+  gap:22px;
+}
+.budget-app .service-picker-head{
+  margin-bottom:4px;
+}
+.budget-app .service-picker-head p:last-child{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+.budget-app .service-group{
+  padding:18px 0 0;
+  border-top:1px solid var(--line);
+}
+.budget-app .service-group-heading{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:12px;
+  align-items:start;
+  margin-bottom:12px;
+}
+.budget-app .service-group-heading>span{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  font-size:11px;
+  font-weight:800;
+  color:var(--blue);
+}
+.budget-app .service-group-heading h3{
+  margin:0;
+  font-family:"Inter Tight",sans-serif;
+  font-size:20px;
+  letter-spacing:-.025em;
+}
+.budget-app .service-group-heading p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.budget-app .service-card-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.budget-app .service-card-grid-education{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.budget-app .service-option{
+  position:relative;
+  margin:0;
+  min-height:0;
+  padding:0;
+  border:1px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+}
+.budget-app .service-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.budget-app .service-option span{
+  display:block;
+  min-height:58px;
+  padding:10px 12px;
+}
+.budget-app .service-option strong{
+  display:block;
+  font-size:12px;
+  line-height:1.25;
+}
+.budget-app .service-option small{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.3;
+}
+.budget-app .service-option:hover{
+  border-color:rgba(0,48,135,.45);
+}
+.budget-app .service-option:has(input:checked){
+  border-color:var(--blue);
+  box-shadow:inset 0 0 0 1px var(--blue);
+  background:#f2f6fc;
+}
+.budget-app .service-option:has(input:checked) strong{
+  color:var(--blue);
+}
+
+/* Botões operacionais do formulário: menores e menos dominantes */
+.budget-app .button{
+  min-height:40px;
+  padding:0 14px;
+  font-size:11px;
+}
+.budget-app .budget-actions{
+  margin-top:18px;
+}
+
+/* Blocos informativos mais enxutos */
+.budget-app .quote-route-notice{
+  padding:14px 16px;
+}
+.budget-app .quote-route-notice p{
+  margin:5px 0 0;
+  font-size:12px;
+  line-height:1.45;
+}
+
+@media(max-width:980px){
+  .budget-app .service-card-grid,
+  .budget-app .service-card-grid-education{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:620px){
+  .budget-app .service-card-grid,
+  .budget-app .service-card-grid-education{
+    grid-template-columns:1fr;
+  }
+}
