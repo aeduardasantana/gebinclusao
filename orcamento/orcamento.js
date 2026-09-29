@@ -24,6 +24,13 @@ const addServiceDayButton = document.getElementById('add-service-day');
 const totalServiceHours = document.getElementById('total-service-hours');
 
 let currentStep = 1;
+let currentRequestId = '';
+const AV_MINUTE_CODES = ['FEP-AV-FILME','FEP-AV-FILME-TEC','FEP-AV-LEG','FEP-AV-DUB','FEP-AV-WEB','FEP-AV-INST'];
+const AV_PIECE_CODES = ['FEP-AV-PROP','FEP-AV-POL'];
+const ACTIVITY_BASE_CODES = ['FEP-LIDER-AUT','FEP-AV-STUDIO','FEP-AV-LIVE'];
+const TEAM_REF = {'FEP-SIM-PROVA-BAS':2,'FEP-SIM-PROVA-MED':2,'FEP-SIM-PROVA-SUP':2,'FEP-SIM-ARTCULT':3,'FEP-SIM-JUR-ATEND':2,'FEP-SIM-JUR-AUD':3,'FEP-SIM-CONF-H':2,'FEP-SIM-CONF-COORD-H':1,'FEP-SIM-LAZER':2,'FEP-SIM-SAUDE':2,'FEP-SIM-SAUDE-CIR':2,'FEP-SIM-PUBLICO':2,'FEP-SIM-EMP':2,'FEP-SIM-SOCIAL':2,'FEP-PED-AVULSA':2,'FEP-LIDER-AUT':2,'FEP-AV-PROP':1,'FEP-AV-POL':2,'FEP-AV-DEBATE':3,'FEP-AV-LIVE':2};
+function isVideoCall(){ return selectedServiceInput()?.value === 'FEP-AV-VIDEOCALL'; }
+function parseMinutesList(id){ return text(id).split(';').map(v=>Number(v.trim().replace(',','.'))).filter(v=>Number.isFinite(v)&&v>0); }
 
 function showStep(step) {
   currentStep = step;
@@ -73,10 +80,20 @@ function syncConditionalFields() {
   const remote = modalidade.value === 'Remota';
   const education = isEducationService();
   const health = isHealthService();
+  const code = selectedServiceInput()?.value || '';
+  const avMinute = AV_MINUTE_CODES.includes(code), avPiece = AV_PIECE_CODES.includes(code), videoCall = isVideoCall(), activityBase = ACTIVITY_BASE_CODES.includes(code);
+  const scheduleRequired = !(avMinute || avPiece || videoCall);
 
   presentialFields.hidden = remote;
   if (remoteFields) remoteFields.hidden = !remote;
   if (educationFields) educationFields.hidden = !education;
+  const schedule=document.getElementById('service-days'), addDay=document.getElementById('add-service-day'), totalBox=totalServiceHours?.closest('.quote-route-notice');
+  if(schedule) schedule.hidden=!scheduleRequired; if(addDay) addDay.closest('.budget-actions').hidden=!scheduleRequired; if(totalBox) totalBox.hidden=!scheduleRequired;
+  document.querySelectorAll('.service-day input').forEach(el=>el.required=scheduleRequired);
+  const minBox=document.getElementById('av-minute-fields'),pieceBox=document.getElementById('av-piece-fields'),callBox=document.getElementById('video-call-fields'),baseBox=document.getElementById('activity-base-fields');
+  if(minBox) minBox.hidden=!avMinute; if(pieceBox) pieceBox.hidden=!avPiece; if(callBox) callBox.hidden=!videoCall; if(baseBox) baseBox.hidden=!activityBase;
+  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),baseInput=document.getElementById('codigoAtividadeBase'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(baseInput) baseInput.required=activityBase;
+  const deaf=document.getElementById('deafblind-fields'); if(deaf) deaf.hidden=!checked('temPessoaSurdocega');
   if (healthRiskChoice) {
     healthRiskChoice.hidden = !health;
     if (!health) {
@@ -90,6 +107,7 @@ function syncModality() {
   syncConditionalFields();
 }
 modalidade.addEventListener('change', syncModality);
+document.getElementById('temPessoaSurdocega')?.addEventListener('change', syncConditionalFields);
 syncModality();
 
 precisaNf.addEventListener('change', () => {
@@ -138,6 +156,8 @@ function formatMoney(value) {
   return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function calculateDurationExact(start,end){if(!start||!end)return 0;const [sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);let m=(eh*60+em)-(sh*60+sm);if(m<=0)m+=1440;return m/60;}
+
 function calculateDurationHours(start, end) {
   if (!start || !end) return 0;
   const [sh, sm] = start.split(':').map(Number);
@@ -157,7 +177,7 @@ function getServiceDays() {
       data: date,
       horarioInicial: start,
       horarioFinal: end,
-      horas: calculateDurationHours(start, end)
+      horas: calculateDurationExact(start, end)
     };
   });
 }
@@ -166,6 +186,7 @@ function updateLegacyScheduleFields() {
   const days = getServiceDays();
   const first = days[0] || {};
   const total = days.reduce((sum, day) => sum + Number(day.horas || 0), 0);
+  const billable = days.reduce((sum,day)=>sum+Math.ceil(Number(day.horas||0)-1e-9),0);
 
   document.getElementById('dataServico').value = first.data || '';
   document.getElementById('horario').value = first.horarioInicial || '';
@@ -174,7 +195,7 @@ function updateLegacyScheduleFields() {
 
   if (totalServiceHours) {
     totalServiceHours.textContent = total > 0
-      ? total + ' hora(s) em ' + days.length + ' dia(s)'
+      ? total.toLocaleString('pt-BR',{maximumFractionDigits:2}) + 'h programadas · ' + billable + 'h faturáveis · ' + days.length + ' dia(s)'
       : 'Preencha a programação para calcular a carga horária.';
   }
 
@@ -246,17 +267,14 @@ function recommendedTeamSize() {
   const code = selectedServiceInput()?.value || '';
   const days = getServiceDays();
   const maxDailyHours = days.reduce((max, day) => Math.max(max, Number(day.horas || 0)), 0);
-  const rule = SERVICE_RULES[code] || {};
   let team = 1;
 
   if (maxDailyHours > 1) team = Math.max(team, 2);
 
-  if (Number(rule.team || 1) > team) {
-    team = Number(rule.team || 1);
-  }
+  if (Number(TEAM_REF[code] || 1) > team) team = Number(TEAM_REF[code] || 1);
 
   if (
-    (code === 'FEP-SIM-CONF-D' || code === 'FEP-SIM-CONF-H') &&
+    code === 'FEP-SIM-CONF-H' &&
     maxDailyHours > 6
   ) {
     team = Math.max(team, 3);
@@ -303,40 +321,16 @@ function buildPayload() {
   const modalidadeValue = text('modalidade');
   const diasServico = getServiceDays();
   const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
+  const code = selectedServiceInput()?.value || '';
   const dias = Math.max(1, diasServico.length);
   const primeiroDia = diasServico[0] || {};
   const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
 
-  const detalhesPartes = [
-    text('nomeAtividade') ? 'Atividade: ' + text('nomeAtividade') : '',
-    modalidadeValue === 'Remota' && text('plataformaRemota') ? 'Plataforma: ' + text('plataformaRemota') : '',
-    modalidadeValue === 'Remota' && text('linkAcessoRemoto') ? 'Link: ' + text('linkAcessoRemoto') : '',
-    isEducationService() && text('instituicaoEnsino') ? 'Instituição de ensino: ' + text('instituicaoEnsino') : '',
-    isEducationService() && text('cursoTurma') ? 'Curso/turma: ' + text('cursoTurma') : '',
-    isEducationService() && (text('periodoInicio') || text('periodoFim')) ? 'Período educacional: ' + text('periodoInicio') + ' a ' + text('periodoFim') : '',
-    text('detalhes'),
-    'Programação: ' + diasServico.map(day =>
-      'Dia ' + day.indice + ': ' + day.data + ' | ' + day.horarioInicial + ' às ' + day.horarioFinal + ' | ' + day.horas + 'h'
-    ).join(' ; '),
-    'Carga horária total: ' + duration + ' hora(s)',
-    'Regra de equipe: ' + buildTeamRuleText(),
-    'Quantidade recomendada pelo GEB: ' + recommendedTeamSize(),
-    'Quantidade escolhida pelo cliente: ' + Math.max(1, getNumber('qtdInterpretes') || 1),
-    text('publicoSurdo') ? 'Público surdo estimado: ' + text('publicoSurdo') : '',
-    checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
-    buildEventAddress() ? 'Endereço do serviço: ' + buildEventAddress() : '',
-    text('cargoResponsavel') ? 'Cargo/função do responsável: ' + text('cargoResponsavel') : '',
-    checked('temPessoaSurdocega') ? 'Há pessoa surdocega com necessidade de guia-interpretação.' : '',
-    text('formaPagamento') ? 'Forma de pagamento: ' + text('formaPagamento') : '',
-    checked('forneceAgua') ? 'Contratante fornecerá água.' : '',
-    checked('precisaNf') && text('razaoSocial') ? 'Razão social: ' + text('razaoSocial') : '',
-    checked('precisaNf') && text('documentoFiscal') ? 'Documento fiscal: ' + text('documentoFiscal') : '',
-    checked('precisaNf') && text('inscricaoFiscal') ? 'Inscrição fiscal: ' + text('inscricaoFiscal') : '',
-    checked('precisaNf') && text('emailFiscal') ? 'E-mail fiscal: ' + text('emailFiscal') : '',
-    checked('precisaNf') && text('enderecoFiscal') ? 'Endereço fiscal: ' + text('enderecoFiscal') : ''
-  ].filter(Boolean);
+  const detalhesPartes = [text('detalhes')].filter(Boolean);
 
   return {
+    requestId: currentRequestId || (currentRequestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+'-'+Math.random().toString(16).slice(2))),
+    versaoPayload: '2026.09-v1',
     nome: text('nome'),
     empresa: text('empresa'),
     documento: text('documento'),
@@ -355,6 +349,11 @@ function buildPayload() {
     periodoInicio: isEducationService() ? text('periodoInicio') : '',
     periodoFim: isEducationService() ? text('periodoFim') : '',
     educacaoRegular: isEducationService(),
+    duracaoConteudoMinutos: AV_MINUTE_CODES.includes(code) ? getNumber('duracaoConteudoMinutos') : 0,
+    quantidadeVideos: AV_PIECE_CODES.includes(code) ? Math.max(0,getNumber('quantidadeVideos')) : 0,
+    duracoesVideosMinutos: AV_PIECE_CODES.includes(code) ? parseMinutesList('duracoesVideos') : [],
+    atendimentosVideochamadaMinutos: isVideoCall() ? parseMinutesList('atendimentosVideochamada') : [],
+    codigoAtividadeBase: ACTIVITY_BASE_CODES.includes(code) ? text('codigoAtividadeBase') : '',
     dataServico: primeiroDia.data || '',
     horario: primeiroDia.horarioInicial || '',
     horarioFinal: primeiroDia.horarioFinal || '',
@@ -370,6 +369,7 @@ function buildPayload() {
     retornoDiario: modalidadeValue === 'Remota' ? false : checked('retornoDiario'),
     forneceAlimentacao: modalidadeValue === 'Remota' ? true : checked('forneceAlimentacao'),
     forneceAgua: modalidadeValue === 'Remota' ? true : checked('forneceAgua'),
+    necessitaHospedagem: modalidadeValue === 'Remota' ? false : checked('necessitaHospedagem'),
     valorPassagem: 0,
     valorHospedagem: 0,
     valorOutrosCustos: 0,
@@ -399,286 +399,15 @@ function buildPayload() {
     ufEvento: text('ufEvento'),
     cargoResponsavel: text('cargoResponsavel'),
     temPessoaSurdocega: checked('temPessoaSurdocega'),
+    haOutrasPessoasSurdas: checked('temPessoaSurdocega') && checked('haOutrasPessoasSurdas'),
+    perfilComunicacaoSurdocegueira: checked('temPessoaSurdocega') ? text('perfilComunicacaoSurdocegueira') : '',
     formaPagamento: text('formaPagamento'),
     publicoSurdo: getNumber('publicoSurdo'),
     orcamentoDisponivel: 0
   };
 }
 
-const SERVICE_RULES = {
-  'FEP-SIM-PROVA-BAS': {type:'hour',base:120,team:2},
-  'FEP-SIM-PROVA-MED': {type:'hour',base:180,team:2},
-  'FEP-SIM-PROVA-SUP': {type:'hour',base:240,team:2},
-  'FEP-SIM-ARTCULT': {type:'hour',base:192,team:3,percent:30,streaming:true},
-  'FEP-SIM-JUR-ATEND': {type:'hour',base:144,team:2},
-  'FEP-SIM-JUR-AUD': {type:'hour',base:192,team:3},
-  'FEP-SIM-CONF-COORD-D': {type:'day6',base:1080,team:1,percent:20},
-  'FEP-SIM-CONF-COORD-H': {type:'hour',base:180,team:1,percent:20},
-  'FEP-SIM-CONF-D': {type:'day6',base:864,team:2,prepMinHours:1,prepRate:144},
-  'FEP-SIM-CONF-H': {type:'hour',base:144,team:2,prepMinHours:1,prepRate:144},
-  'FEP-SIM-LAZER': {type:'hour',base:144,team:2},
-  'FEP-SIM-SAUDE': {type:'hour',base:144,team:2,percent:30},
-  'FEP-SIM-SAUDE-CIR': {type:'day6',base:500,team:2,percent:30},
-  'FEP-SIM-PUBLICO': {type:'rangeHour',base:120,include:2,additional:60,team:2},
-  'FEP-SIM-EMP': {type:'hour',base:144,team:2},
-  'FEP-SIM-SOCIAL': {type:'hour',base:144,team:2},
-  'FEP-PREP-CULT': {type:'fixedPerInterpreter',base:480,team:1},
-  'FEP-PED-AVULSA': {type:'hour',base:144,team:2,minHours:4},
-  'FEP-LIDER-AUT': {type:'fixedPlusInterpretation',base:250,team:2},
-
-  'FEP-AV-PROP': {type:'fixed',base:250,team:1},
-  'FEP-AV-POL': {type:'perVideo',base:300,team:2},
-  'FEP-AV-DEBATE': {type:'hour',base:300,team:3},
-  'FEP-AV-FILME': {type:'minute',base:60,team:1},
-  'FEP-AV-FILME-TEC': {type:'minute',base:48,team:1},
-  'FEP-AV-LEG': {type:'minute',base:96,team:1},
-  'FEP-AV-DUB': {type:'minute',base:144,team:1},
-  'FEP-AV-TV-REC': {type:'hour',base:48,team:1},
-  'FEP-AV-WEB': {type:'minute',base:60,team:1},
-  'FEP-AV-INST': {type:'minute',base:60,team:1},
-  'FEP-AV-VIDEOCALL': {type:'block15',base:25,team:1},
-  'FEP-AV-STUDIO': {type:'fixedPlusInterpretation',base:300,team:1},
-  'FEP-AV-LIVE': {type:'percentOfBase',base:0,team:2,percent:30},
-
-  'FEP-EDU-BAS': {type:'educationHour',base:100.80,team:2,prepPercent:0.25,referencePackage:2016,referenceHours:20},
-  'FEP-EDU-SUP': {type:'educationHour',base:131.52,team:2,prepPercent:0.25,referencePackage:2630.40,referenceHours:20},
-  'FEP-EDU-POS': {type:'educationHour',base:168.00,team:2,prepPercent:0.25,referencePackage:3360,referenceHours:20}
-};
-
-function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
-
-// Inicialização somente depois que SERVICE_RULES já existe.
-updateLegacyScheduleFields();
-
-function requestCalculation(payload) {
-  const rule = SERVICE_RULES[payload.codigoServico];
-  if (!rule) throw new Error('Este tipo de serviço ainda exige análise manual para cálculo.');
-
-  const serviceDays = Array.isArray(payload.diasServico) && payload.diasServico.length
-    ? payload.diasServico
-    : [{
-        data: payload.dataServico,
-        horarioInicial: payload.horario,
-        horarioFinal: payload.horarioFinal,
-        horas: Number(payload.duracaoHoras || 0)
-      }];
-
-  const totalHours = serviceDays.reduce((sum, day) => sum + Number(day.horas || 0), 0);
-  const days = Math.max(1, serviceDays.length);
-  const team = Math.max(1, Number(payload.qtdInterpretes || 1));
-  const memoria = [];
-
-  let honorarios = 0;
-
-  if (rule.type === 'hour') {
-    honorarios = serviceDays.reduce((sum, day) => {
-      const hours = Math.max(Number(day.horas || 0), Number(rule.minHours || 0));
-      return sum + (rule.base * hours * team);
-    }, 0);
-    memoria.push({
-      item:'Honorários profissionais',
-      formula: serviceDays.map((day, index) => {
-        const hours = Math.max(Number(day.horas || 0), Number(rule.minHours || 0));
-        return 'Dia ' + (index + 1) + ': ' + hours + 'h × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)';
-      }).join(' + '),
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'day6') {
-    const blocosPorDia = serviceDays.map(day => Math.max(1, Math.ceil(Number(day.horas || 0) / 6)));
-    const totalDiarias = blocosPorDia.reduce((sum, value) => sum + value, 0);
-    honorarios = totalDiarias * rule.base * team;
-    memoria.push({
-      item:'Honorários profissionais',
-      formula: serviceDays.map((day,index) =>
-        'Dia ' + (index + 1) + ': ' + Number(day.horas || 0) + 'h = ' + blocosPorDia[index] + ' diária(s) de 6h'
-      ).join(' + ') + ' × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'educationHour') {
-    honorarios = totalHours * rule.base * team;
-    memoria.push({
-      item:'Honorários profissionais',
-      formula: totalHours + 'h de aulas regulares × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s). Valor-hora proporcional derivado de ' + formatMoney(rule.referencePackage) + ' / ' + rule.referenceHours + 'h semanais',
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'rangeHour') {
-    honorarios = serviceDays.reduce((sum, day) => {
-      const duration = Number(day.horas || 0);
-      let daily = rule.base * team;
-      if (duration > rule.include) {
-        daily += Math.ceil(duration - rule.include) * rule.additional * team;
-      }
-      return sum + daily;
-    }, 0);
-    memoria.push({
-      item:'Honorários profissionais',
-      formula:'Faixa inicial de ' + rule.include + 'h + horas adicionais, calculadas por dia × ' + team + ' intérprete(s)',
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'minute') {
-    honorarios = rule.base * (totalHours * 60) * team;
-    memoria.push({
-      item:'Honorários profissionais',
-      formula:(totalHours * 60) + ' min × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'block15') {
-    const blocks = Math.ceil((totalHours * 60) / 15);
-    honorarios = blocks * rule.base * team;
-    memoria.push({
-      item:'Honorários profissionais',
-      formula:blocks + ' bloco(s) de 15 min × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
-      valor:roundMoney(honorarios)
-    });
-  } else if (rule.type === 'fixed') {
-    honorarios = rule.base * team;
-    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
-  } else if (rule.type === 'fixedPerInterpreter') {
-    honorarios = rule.base * team;
-    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
-  } else if (rule.type === 'perVideo') {
-    honorarios = rule.base * team;
-    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
-  } else if (rule.type === 'package') {
-    honorarios = rule.base * team;
-    memoria.push({item:'Honorários profissionais',formula:'Referência do serviço ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
-  } else if (rule.type === 'fixedPlusInterpretation') {
-    honorarios = rule.base * team * days;
-    memoria.push({item:'Honorários profissionais',formula:days + ' dia(s) × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
-  } else if (rule.type === 'percentOfBase') {
-    throw new Error('Esta regra depende de uma atividade-base e ainda exige definição do serviço-base para cálculo automático.');
-  }
-
-  let preparacao = 0;
-
-  if (Number(rule.prepMinHours || 0) > 0) {
-    const prepHours = Number(rule.prepMinHours);
-    const prepRate = Number(rule.prepRate || rule.base || 0);
-    preparacao = prepHours * prepRate * team;
-    memoria.push({
-      item:'Preparação / estudo prévio',
-      formula:prepHours + 'h mínima(s) × ' + formatMoney(prepRate) + ' × ' + team + ' intérprete(s)',
-      valor:roundMoney(preparacao)
-    });
-  }
-
-  if (Number(rule.prepPercent || 0) > 0) {
-    const prepHours = totalHours * Number(rule.prepPercent);
-    preparacao = prepHours * rule.base * team;
-    memoria.push({
-      item:'Preparação / estudo prévio',
-      formula:(Number(rule.prepPercent) * 100) + '% de ' + totalHours + 'h = ' + prepHours.toFixed(2).replace('.', ',') + 'h × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
-      valor:roundMoney(preparacao)
-    });
-  }
-
-  let adicionais = 0;
-  if (payload.doencaContagiosa === true && rule.percent > 0) {
-    const valor = honorarios * (rule.percent / 100);
-    adicionais += valor;
-    memoria.push({item:'Adicional',formula:rule.percent + '% sobre honorários',valor:roundMoney(valor)});
-  }
-  if (payload.gravacaoStreaming === true && rule.streaming === true && rule.percent > 0) {
-    const valor = honorarios * (rule.percent / 100);
-    adicionais += valor;
-    memoria.push({item:'Gravação / streaming',formula:rule.percent + '% sobre honorários',valor:roundMoney(valor)});
-  }
-  let descontoRemoto = 0;
-  if (String(payload.modalidade).toLowerCase() === 'remota' || String(payload.modalidade).toLowerCase() === 'online') {
-    descontoRemoto = (honorarios + preparacao) * .25;
-    memoria.push({
-      item:'Desconto modalidade remota — política GEB',
-      formula:'25% de desconto sobre honorários + preparação. A referência Febrapils prevê acréscimo de 30%, mas o GEB adota política comercial própria para serviços remotos.',
-      valor:-roundMoney(descontoRemoto)
-    });
-  }
-
-  let alimentacao = 0;
-  if (payload.forneceAlimentacao !== true) {
-    const blocosPorDia = serviceDays.map(day => Number(day.horas || 0) > 3 ? Math.ceil(Number(day.horas || 0) / 4) : 0);
-    const totalBlocos = blocosPorDia.reduce((sum, value) => sum + value, 0);
-    alimentacao = totalBlocos * 50 * team;
-    if (alimentacao > 0) {
-      memoria.push({
-        item:'Alimentação',
-        formula:totalBlocos + ' bloco(s) × R$ 50,00 × ' + team + ' intérprete(s)',
-        valor:roundMoney(alimentacao)
-      });
-    }
-  } else {
-    memoria.push({item:'Alimentação',formula:'Fornecida pelo contratante',valor:0});
-  }
-
-  let deslocamento = 0;
-  const transporte = String(payload.transporteTipo || '').toLowerCase();
-  if (['carro','veiculo','veículo particular'].includes(transporte)) {
-    const km = Number(payload.distanciaIdaKm || 0);
-    if (km > 0) {
-      const idas = days > 1 && payload.retornoDiario === true ? days : 1;
-      const voltas = idas;
-      const totalKm = km * (idas + voltas);
-      deslocamento = totalKm * 1.5;
-      memoria.push({
-        item:'Deslocamento',
-        formula:km.toFixed(1).replace('.', ',') + ' km por trecho × ' + idas + ' ida(s) + ' + voltas + ' volta(s) = ' + totalKm.toFixed(1).replace('.', ',') + ' km × R$ 1,50/km',
-        valor:roundMoney(deslocamento)
-      });
-    } else {
-      memoria.push({
-        item:'Deslocamento',
-        formula:'Distância e valor serão calculados no backend a partir do endereço do evento.',
-        valor:0,
-        pendente:true
-      });
-    }
-  }
-
-  let passagem = 0;
-  if (['onibus','ônibus','aviao','avião'].includes(transporte)) {
-    passagem = Number(payload.valorPassagem || 0);
-  }
-
-  const hospedagem = Number(payload.valorHospedagem || 0);
-  const outrosCustos = Number(payload.valorOutrosCustos || 0);
-  const total = honorarios + preparacao + adicionais - descontoRemoto + alimentacao + deslocamento + passagem + hospedagem + outrosCustos;
-
-  const antecedencia = Number(payload.diasAntecedencia);
-  const fullPayment = Number.isFinite(antecedencia) && antecedencia >= 0 && antecedencia < 3;
-  const baseProfissional = honorarios + preparacao + adicionais - descontoRemoto;
-  const sinal = fullPayment ? baseProfissional : baseProfissional * .20;
-  const saldo = fullPayment ? 0 : baseProfissional - sinal;
-
-  return {
-    sucesso:true,
-    qtdInterpretes:team,
-    equipeRecomendada:recommendedTeamSize(),
-    cargaHorariaTotal:totalHours,
-    memoria:memoria,
-    qtdDias:days,
-    diasServico:serviceDays,
-    valores:{
-      honorarios:roundMoney(honorarios),
-      preparacao:roundMoney(preparacao),
-      adicionais:roundMoney(adicionais),
-      descontoRemoto:roundMoney(descontoRemoto),
-      alimentacao:roundMoney(alimentacao),
-      deslocamento:roundMoney(deslocamento),
-      passagem:roundMoney(passagem),
-      hospedagem:roundMoney(hospedagem),
-      outrosCustos:roundMoney(outrosCustos),
-      total:roundMoney(total)
-    },
-    pagamento:{
-      percentualSinal:fullPayment ? 100 : 20,
-      sinal:roundMoney(sinal),
-      saldo:roundMoney(saldo),
-      pagamentoIntegral:fullPayment,
-      prazoSaldoDiasAntes:3
-    },
-    validade:{dias:3}
-  };
-}
-
+// O cálculo financeiro oficial é realizado exclusivamente pelo backend.
 async function registerBudget(payload) {
   const response = await fetch(ENDPOINT, {
     method: 'POST',
@@ -709,11 +438,6 @@ form.addEventListener('submit', async event => {
   try {
     const payload = buildPayload();
 
-    const calculationLocal = requestCalculation(payload);
-    payload.valorTotal = calculationLocal.valores.total;
-    payload.qtdInterpretes = calculationLocal.qtdInterpretes || payload.qtdInterpretes;
-    payload.calculo = calculationLocal;
-
     const registration = await registerBudget(payload);
 
     if (!registration.ok) {
@@ -722,7 +446,7 @@ form.addEventListener('submit', async event => {
 
     // O backend é a fonte oficial do cálculo. A tela usa o cálculo retornado
     // pelo Apps Script quando disponível, inclusive ajustes de rota/logística.
-    const calculation = registration.calculo || calculationLocal;
+    const calculation = registration.calculo || {};
 
     progress.forEach((el,index) => {
       el.classList.toggle('active', index === 3);
@@ -745,7 +469,7 @@ form.addEventListener('submit', async event => {
       values.deslocamento ? ['Deslocamento', formatMoney(values.deslocamento)] : null,
       values.passagem ? ['Passagem', formatMoney(values.passagem)] : null,
       values.hospedagem ? ['Hospedagem', formatMoney(values.hospedagem)] : null,
-      ['Total estimado', formatMoney(values.total)],
+      ['Investimento calculado', formatMoney(values.total)],
       payment.sinal != null ? ['Sinal / confirmação', formatMoney(payment.sinal)] : null,
       payment.saldo != null ? ['Saldo', formatMoney(payment.saldo)] : null
     ].filter(Boolean).map(([label,value]) =>
@@ -753,7 +477,9 @@ form.addEventListener('submit', async event => {
     ).join('');
 
     document.getElementById('result-message').textContent =
-      'Solicitação registrada com sucesso. O orçamento considera as informações fornecidas e poderá exigir ajuste caso haja alteração de escopo, logística ou condições do serviço.';
+      'Proposta gerada com validade de 3 dias. A geração não reserva agenda. Abra o PDF para consultar as condições; se precisar adequar a contratação ao orçamento disponível, fale com o GEB.';
+
+    const whats=document.getElementById('result-whatsapp'); if(whats) whats.href='https://wa.me/551121105473?text='+encodeURIComponent('Olá, GEB. Quero avaliar uma adequação comercial da proposta '+registration.numero+'.');
 
     const pdf = document.getElementById('result-pdf');
     if (registration.pdfUrl) {
