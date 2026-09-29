@@ -82,20 +82,12 @@
                 <span><strong>Audiência jurídica</strong><small>Audiências, julgamentos, juizados e delegacias</small></span>
               </label>
               <label class="service-option">
-                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-COORD-D">
-                <span><strong>Coordenação de equipe TILS</strong><small>Diária</small></span>
-              </label>
-              <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-SIM-CONF-COORD-H">
-                <span><strong>Coordenação de equipe TILS</strong><small>Hora</small></span>
-              </label>
-              <label class="service-option">
-                <input type="radio" name="codigoServico" value="FEP-SIM-CONF-D">
-                <span><strong>Conferência</strong><small>Palestra, oficina, seminário ou congresso — diária</small></span>
+                <span><strong>Coordenação de equipe TILS</strong><small>Cálculo por hora</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-SIM-CONF-H">
-                <span><strong>Conferência</strong><small>Palestra, oficina, seminário ou congresso — hora avulsa</small></span>
+                <span><strong>Conferência</strong><small>Palestra, oficina, seminário ou congresso</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-SIM-LAZER">
@@ -120,10 +112,6 @@
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-SIM-SOCIAL">
                 <span><strong>Social</strong><small>Casamentos, bodas, batizados, formaturas, premiações, velórios e cultos</small></span>
-              </label>
-              <label class="service-option">
-                <input type="radio" name="codigoServico" value="FEP-PREP-CULT">
-                <span><strong>Preparação e estudo prévio</strong><small>Contexto cultural</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-PED-AVULSA">
@@ -191,7 +179,7 @@
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-AV-STUDIO">
-                <span><strong>Diária em estúdio</strong><small>Permanência em estúdio de gravação</small></span>
+                <span><strong>Estúdio de gravação</strong><small>Permanência em estúdio + atividade principal</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-AV-LIVE">
@@ -211,15 +199,15 @@
             <div class="service-card-grid service-card-grid-education">
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-EDU-BAS">
-                <span><strong>Educação básica e técnica — aulas regulares</strong><small>Valor proporcional derivado da referência Febrapils de 20h semanais</small></span>
+                <span><strong>Educação básica e técnica — aulas regulares</strong><small>Cálculo por hora conforme a programação informada</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-EDU-SUP">
-                <span><strong>Ensino superior, tecnológico e especialização — aulas regulares</strong><small>Valor proporcional derivado da referência Febrapils de 20h semanais</small></span>
+                <span><strong>Ensino superior, tecnológico e especialização — aulas regulares</strong><small>Cálculo por hora conforme a programação informada</small></span>
               </label>
               <label class="service-option">
                 <input type="radio" name="codigoServico" value="FEP-EDU-POS">
-                <span><strong>Mestrado e doutorado — aulas regulares</strong><small>Valor proporcional derivado da referência Febrapils de 20h semanais</small></span>
+                <span><strong>Mestrado e doutorado — aulas regulares</strong><small>Cálculo por hora conforme a programação informada</small></span>
               </label>
             </div>
           </section>
@@ -239,7 +227,7 @@
           </label>
           <div>
             <span class="field-label">Programação do serviço</span>
-            <p>Informe cada dia separadamente. O sistema soma automaticamente a carga horária total.</p>
+            <p id="schedule-guidance">Informe cada dia separadamente. O sistema distingue duração programada e carga faturável.</p>
           </div>
         </div>
 
@@ -261,7 +249,7 @@
         <div id="education-fields" hidden>
           <div class="quote-route-notice">
             <strong>Aulas regulares</strong>
-            <p>Para cálculo da referência semanal, informe abaixo o vínculo educacional e use a programação como uma semana regular de aulas.</p>
+            <p>Informe o vínculo educacional. O cálculo será feito por hora conforme a programação contratada, com preparação aplicável.</p>
           </div>
           <div class="field-grid two">
             <label>Instituição de ensino
@@ -281,6 +269,11 @@
           </div>
         </div>
 
+
+        <div id="activity-base-fields" hidden><div class="quote-route-notice"><strong>Atividade principal da interpretação</strong><p>Este serviço acrescenta uma condição específica a outra atividade de interpretação. Selecione a atividade principal.</p></div><label>Atividade-base<select id="codigoAtividadeBase" name="codigoAtividadeBase"><option value="">Selecione</option><option value="FEP-SIM-PROVA-BAS">Aplicação de provas — nível básico</option><option value="FEP-SIM-PROVA-MED">Aplicação de provas — nível médio</option><option value="FEP-SIM-PROVA-SUP">Aplicação de provas — nível superior</option><option value="FEP-SIM-ARTCULT">Artístico e cultural</option><option value="FEP-SIM-JUR-ATEND">Atendimento jurídico</option><option value="FEP-SIM-JUR-AUD">Audiência jurídica</option><option value="FEP-SIM-CONF-H">Conferência</option><option value="FEP-SIM-LAZER">Lazer e turismo</option><option value="FEP-SIM-SAUDE">Saúde</option><option value="FEP-SIM-SAUDE-CIR">Saúde — ambiente cirúrgico</option><option value="FEP-SIM-PUBLICO">Serviços públicos e sociais</option><option value="FEP-SIM-EMP">Empresarial</option><option value="FEP-SIM-SOCIAL">Social</option><option value="FEP-PED-AVULSA">Atividade pedagógica avulsa</option><option value="FEP-AV-DEBATE">Debate</option><option value="FEP-AV-TV-REC">Programa de TV recorrente</option></select></label></div>
+        <div id="av-minute-fields" hidden><label>Duração do conteúdo audiovisual em minutos<input id="duracaoConteudoMinutos" type="number" min="0.01" step="0.01"></label></div>
+        <div id="av-piece-fields" hidden><div class="field-grid two"><label>Quantidade de vídeos/peças<input id="quantidadeVideos" type="number" min="1" step="1"></label><label>Duração de cada peça, em minutos<input id="duracoesVideos" type="text" placeholder="Ex.: 0,5; 1; 0,75"><small>Separe as durações por ponto e vírgula. Cada peça deve ter até 1 minuto.</small></label></div></div>
+        <div id="video-call-fields" hidden><label>Duração de cada atendimento, em minutos<input id="atendimentosVideochamada" type="text" placeholder="Ex.: 16; 14; 30"><small>Cada atendimento é arredondado separadamente em blocos de 15 minutos.</small></label></div>
         <div id="service-days">
           <div class="service-day" data-day-index="0">
             <div class="field-grid three">
@@ -332,7 +325,7 @@
         <div class="choice-grid">
           <label class="choice"><input type="checkbox" id="gravacaoStreaming" name="gravacaoStreaming"><span>Haverá gravação ou streaming</span></label>
           <label class="choice" id="health-risk-choice" hidden><input type="checkbox" id="doencaContagiosa" name="doencaContagiosa"><span>Há contexto com doença contagiosa / insalubridade</span></label>
-          <label class="choice"><input type="checkbox" id="temPessoaSurdocega" name="temPessoaSurdocega"><span>Haverá pessoa surdocega que necessite de guia-interpretação</span></label>
+          <label class="choice"><input type="checkbox" id="temPessoaSurdocega" name="temPessoaSurdocega"><span>Haverá pessoa surdocega que necessite de guia-interpretação</span></label></div><div id="deafblind-fields" hidden><div class="choice-grid"><label class="choice"><input type="checkbox" id="haOutrasPessoasSurdas"><span>Também haverá outras pessoas surdas</span></label></div><label>Perfil/modalidade de comunicação da pessoa surdocega (se conhecido)<input id="perfilComunicacaoSurdocegueira" type="text" placeholder="Ex.: Libras tátil"></label>
         </div>
 
         <div class="budget-actions">
@@ -380,8 +373,8 @@
               <select id="transporteTipo" name="transporteTipo">
                 <option value="carro">Veículo particular</option>
                 <option value="fornecido">Transporte fornecido pelo contratante</option>
-                <option value="onibus">Ônibus (Intermunicipal/Interestadual)</option>
-                <option value="aviao">Avião</option>
+                <option value="onibus">Ônibus intermunicipal/interestadual</option>
+                <option value="aviao">Voo comercial</option>
                 <option value="outro">Outro</option>
               </select>
             </label>
@@ -396,7 +389,7 @@
           <div class="choice-grid">
             <label class="choice"><input type="checkbox" id="retornoDiario" name="retornoDiario"><span>Nos dias seguintes, o profissional retornará ao local de origem ao final de cada dia</span></label>
             <label class="choice"><input type="checkbox" id="forneceAlimentacao" name="forneceAlimentacao"><span>O contratante fornecerá alimentação</span></label>
-            <label class="choice"><input type="checkbox" id="forneceAgua" name="forneceAgua"><span>O contratante fornecerá água</span></label>
+            <label class="choice"><input type="checkbox" id="forneceAgua" name="forneceAgua"><span>O contratante fornecerá água</span></label><label class="choice"><input type="checkbox" id="necessitaHospedagem"><span>A execução exige hospedagem</span></label>
           </div>
         </div>
 
@@ -516,7 +509,7 @@
         <p id="result-message" class="result-message"></p>
         <div class="result-actions">
           <a id="result-pdf" class="button button-primary" href="#" target="_blank" rel="noopener" hidden>Abrir PDF do orçamento ↗</a>
-          <a class="button button-ghost-dark" href="../">Voltar ao GEB Inclusão</a>
+          <a id="result-whatsapp" class="button button-ghost-dark" href="#" target="_blank" rel="noopener">Adequar contratação pelo WhatsApp ↗</a><a class="button button-ghost-dark" href="../">Voltar ao GEB Inclusão</a>
         </div>
       </div>
 
