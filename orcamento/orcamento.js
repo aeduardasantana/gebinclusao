@@ -709,16 +709,20 @@ form.addEventListener('submit', async event => {
   try {
     const payload = buildPayload();
 
-    const calculation = requestCalculation(payload);
-    payload.valorTotal = calculation.valores.total;
-    payload.qtdInterpretes = calculation.qtdInterpretes || payload.qtdInterpretes;
-    payload.calculo = calculation;
+    const calculationLocal = requestCalculation(payload);
+    payload.valorTotal = calculationLocal.valores.total;
+    payload.qtdInterpretes = calculationLocal.qtdInterpretes || payload.qtdInterpretes;
+    payload.calculo = calculationLocal;
 
     const registration = await registerBudget(payload);
 
     if (!registration.ok) {
       throw new Error(registration.erro || 'O orçamento não pôde ser registrado.');
     }
+
+    // O backend é a fonte oficial do cálculo. A tela usa o cálculo retornado
+    // pelo Apps Script quando disponível, inclusive ajustes de rota/logística.
+    const calculation = registration.calculo || calculationLocal;
 
     progress.forEach((el,index) => {
       el.classList.toggle('active', index === 3);
