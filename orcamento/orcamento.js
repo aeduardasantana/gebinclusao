@@ -22,6 +22,12 @@ const submitButton = document.getElementById('submit-budget');
 const serviceDays = document.getElementById('service-days');
 const addServiceDayButton = document.getElementById('add-service-day');
 const totalServiceHours = document.getElementById('total-service-hours');
+const budgetLoading = document.getElementById('budget-loading');
+const budgetLoadingTimer = document.getElementById('budget-loading-timer');
+const budgetLoadingStage = document.getElementById('budget-loading-stage');
+
+let budgetLoadingInterval = null;
+let budgetLoadingStartedAt = 0;
 
 let currentStep = 1;
 let currentRequestId = '';
@@ -402,9 +408,52 @@ function buildPayload() {
     haOutrasPessoasSurdas: checked('temPessoaSurdocega') && checked('haOutrasPessoasSurdas'),
     perfilComunicacaoSurdocegueira: checked('temPessoaSurdocega') ? text('perfilComunicacaoSurdocegueira') : '',
     formaPagamento: text('formaPagamento'),
-    publicoSurdo: getNumber('publicoSurdo'),
+    publicoSurdo: text('publicoSurdo'),
     orcamentoDisponivel: 0
   };
+}
+
+function formatElapsed(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+}
+
+function updateBudgetLoadingStage(seconds) {
+  if (!budgetLoadingStage) return;
+  if (seconds < 12) {
+    budgetLoadingStage.textContent = 'Validando os dados e aplicando as regras do serviço.';
+  } else if (seconds < 28) {
+    budgetLoadingStage.textContent = 'Calculando valores e condições da proposta.';
+  } else if (seconds < 45) {
+    budgetLoadingStage.textContent = 'Preparando o documento e o PDF do orçamento.';
+  } else {
+    budgetLoadingStage.textContent = 'Finalizando o registro. Mantenha esta janela aberta.';
+  }
+}
+
+function startBudgetLoading() {
+  budgetLoadingStartedAt = Date.now();
+  if (budgetLoading) budgetLoading.hidden = false;
+  if (budgetLoadingTimer) budgetLoadingTimer.textContent = '00:00';
+  updateBudgetLoadingStage(0);
+
+  if (budgetLoadingInterval) clearInterval(budgetLoadingInterval);
+  budgetLoadingInterval = setInterval(() => {
+    const seconds = Math.floor((Date.now() - budgetLoadingStartedAt) / 1000);
+    if (budgetLoadingTimer) budgetLoadingTimer.textContent = formatElapsed(seconds);
+    updateBudgetLoadingStage(seconds);
+  }, 1000);
+
+  budgetLoading?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function stopBudgetLoading() {
+  if (budgetLoadingInterval) {
+    clearInterval(budgetLoadingInterval);
+    budgetLoadingInterval = null;
+  }
+  if (budgetLoading) budgetLoading.hidden = true;
 }
 
 // O cálculo financeiro oficial é realizado exclusivamente pelo backend.
@@ -429,7 +478,8 @@ form.addEventListener('submit', async event => {
   if (!validateStep(3)) return;
 
   submitButton.disabled = true;
-  submitButton.textContent = 'Calculando...';
+  submitButton.textContent = 'Processando orçamento...';
+  startBudgetLoading();
 
   result.hidden = false;
   success.hidden = true;
@@ -439,6 +489,7 @@ form.addEventListener('submit', async event => {
     const payload = buildPayload();
 
     const registration = await registerBudget(payload);
+    stopBudgetLoading();
 
     if (!registration.ok) {
       throw new Error(registration.erro || 'O orçamento não pôde ser registrado.');
@@ -489,6 +540,7 @@ form.addEventListener('submit', async event => {
 
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
+    stopBudgetLoading();
     errorBox.hidden = false;
     document.getElementById('result-error-message').textContent = err.message || 'Erro inesperado.';
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
