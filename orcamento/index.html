@@ -225,6 +225,11 @@
           </section>
         </div>
 
+        <label>Nome da atividade, evento ou demanda
+          <input id="nomeAtividade" name="nomeAtividade" type="text" placeholder="Ex.: Congresso de Gestão 2026, reunião de equipe, aula de graduação">
+          <small>Use um nome que identifique objetivamente o serviço na proposta.</small>
+        </label>
+
         <div class="field-grid two">
           <label>Modalidade
             <select id="modalidade" name="modalidade" required>
@@ -235,6 +240,44 @@
           <div>
             <span class="field-label">Programação do serviço</span>
             <p>Informe cada dia separadamente. O sistema soma automaticamente a carga horária total.</p>
+          </div>
+        </div>
+
+        <div id="remote-fields" hidden>
+          <div class="quote-route-notice">
+            <strong>Informações para atuação remota</strong>
+            <p>Esses dados ajudam a definir as condições técnicas da proposta. Se ainda não houver link, ele poderá ser informado posteriormente.</p>
+          </div>
+          <div class="field-grid two">
+            <label>Plataforma
+              <input id="plataformaRemota" name="plataformaRemota" type="text" placeholder="Ex.: Google Meet, Zoom, Microsoft Teams">
+            </label>
+            <label>Link de acesso
+              <input id="linkAcessoRemoto" name="linkAcessoRemoto" type="url" placeholder="https://...">
+            </label>
+          </div>
+        </div>
+
+        <div id="education-fields" hidden>
+          <div class="quote-route-notice">
+            <strong>Aulas regulares</strong>
+            <p>Para cálculo da referência semanal, informe abaixo o vínculo educacional e use a programação como uma semana regular de aulas.</p>
+          </div>
+          <div class="field-grid two">
+            <label>Instituição de ensino
+              <input id="instituicaoEnsino" name="instituicaoEnsino" type="text">
+            </label>
+            <label>Curso, turma ou etapa
+              <input id="cursoTurma" name="cursoTurma" type="text" placeholder="Ex.: Pedagogia — 4º período">
+            </label>
+          </div>
+          <div class="field-grid two">
+            <label>Início previsto do período
+              <input id="periodoInicio" name="periodoInicio" type="date">
+            </label>
+            <label>Término previsto do período
+              <input id="periodoFim" name="periodoFim" type="date">
+            </label>
           </div>
         </div>
 
@@ -277,18 +320,18 @@
             <span class="field-label">Equipe de intérpretes</span>
             <div class="quote-route-notice" id="team-rule-box">
               <strong id="team-rule-title">Recomendação de equipe</strong>
-              <p id="team-recommendation-text">Em demandas mais longas, o GEB pode recomendar mais de 1 intérprete para permitir revezamento. A contratação de profissionais adicionais é opcional.</p>
+              <p id="team-recommendation-text">A quantidade tecnicamente indicada depende do tipo de serviço, da duração e das regras aplicáveis. O sistema registrará a equipe solicitada e a equipe tecnicamente indicada.</p>
             </div>
             <label>Quantidade de intérpretes que deseja contratar
               <input id="qtdInterpretes" name="qtdInterpretes" type="number" min="1" step="1" value="1">
-              <small id="team-quantity-help">Você pode manter 1 intérprete ou informar uma quantidade maior. A recomendação será registrada no orçamento, sem alterar sua escolha.</small>
+              <small id="team-quantity-help">Informe a quantidade pretendida. A proposta registrará separadamente a quantidade solicitada e a equipe tecnicamente indicada, quando houver diferença.</small>
             </label>
           </div>
         </div>
 
         <div class="choice-grid">
           <label class="choice"><input type="checkbox" id="gravacaoStreaming" name="gravacaoStreaming"><span>Haverá gravação ou streaming</span></label>
-          <label class="choice"><input type="checkbox" id="doencaContagiosa" name="doencaContagiosa"><span>Há contexto com doença contagiosa / insalubridade</span></label>
+          <label class="choice" id="health-risk-choice" hidden><input type="checkbox" id="doencaContagiosa" name="doencaContagiosa"><span>Há contexto com doença contagiosa / insalubridade</span></label>
           <label class="choice"><input type="checkbox" id="temPessoaSurdocega" name="temPessoaSurdocega"><span>Haverá pessoa surdocega que necessite de guia-interpretação</span></label>
         </div>
 
@@ -351,22 +394,15 @@
           <input id="distanciaIdaKm" name="distanciaIdaKm" type="hidden" value="0">
 
           <div class="choice-grid">
-            <label class="choice"><input type="checkbox" id="retornoDiario" name="retornoDiario"><span>Haverá retorno diário para eventos com mais de um dia</span></label>
+            <label class="choice"><input type="checkbox" id="retornoDiario" name="retornoDiario"><span>Nos dias seguintes, o profissional retornará ao local de origem ao final de cada dia</span></label>
             <label class="choice"><input type="checkbox" id="forneceAlimentacao" name="forneceAlimentacao"><span>O contratante fornecerá alimentação</span></label>
             <label class="choice"><input type="checkbox" id="forneceAgua" name="forneceAgua"><span>O contratante fornecerá água</span></label>
           </div>
         </div>
 
-        <label>O contratante já utilizou intérpretes em uma demanda semelhante?
-          <select id="historicoInterprete" name="historicoInterprete">
-            <option value="Não informado">Prefiro não informar</option>
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
-        </label>
-
-        <label>Observações sobre a demanda
-          <textarea id="detalhes" name="detalhes" rows="5" placeholder="Contexto, programação, quantidade de ambientes, histórico de contratação ou outras informações úteis."></textarea>
+        <label>Informações adicionais que alterem o escopo ou a execução
+          <textarea id="detalhes" name="detalhes" rows="5" placeholder="Ex.: duas salas simultâneas, conteúdo em outro idioma, necessidade específica de acessibilidade, restrição de acesso, formato especial da atividade."></textarea>
+          <small>Evite informações genéricas. Registre somente condições que possam afetar equipe, preparação, estrutura, logística ou valor.</small>
         </label>
 
         <div class="budget-actions split">
