@@ -9,6 +9,9 @@ const nextButtons = [...document.querySelectorAll('.next-step')];
 const prevButtons = [...document.querySelectorAll('.prev-step')];
 const modalidade = document.getElementById('modalidade');
 const presentialFields = document.getElementById('presential-fields');
+const remoteFields = document.getElementById('remote-fields');
+const educationFields = document.getElementById('education-fields');
+const healthRiskChoice = document.getElementById('health-risk-choice');
 const precisaNf = document.getElementById('precisaNf');
 const fiscalFields = document.getElementById('fiscal-fields');
 const transporteTipo = document.getElementById('transporteTipo');
@@ -58,12 +61,33 @@ prevButtons.forEach(btn => btn.addEventListener('click', () => {
   showStep(Math.max(1, currentStep - 1));
 }));
 
-function syncModality() {
+function isEducationService() {
+  return ['FEP-EDU-BAS','FEP-EDU-SUP','FEP-EDU-POS'].includes(selectedServiceInput()?.value || '');
+}
+
+function isHealthService() {
+  return ['FEP-SIM-SAUDE','FEP-SIM-SAUDE-CIR'].includes(selectedServiceInput()?.value || '');
+}
+
+function syncConditionalFields() {
   const remote = modalidade.value === 'Remota';
+  const education = isEducationService();
+  const health = isHealthService();
+
   presentialFields.hidden = remote;
-  presentialFields.querySelectorAll('input,select').forEach(el => {
-    if (el.id === 'enderecoEvento') el.required = !remote;
-  });
+  if (remoteFields) remoteFields.hidden = !remote;
+  if (educationFields) educationFields.hidden = !education;
+  if (healthRiskChoice) {
+    healthRiskChoice.hidden = !health;
+    if (!health) {
+      const risk = document.getElementById('doencaContagiosa');
+      if (risk) risk.checked = false;
+    }
+  }
+}
+
+function syncModality() {
+  syncConditionalFields();
 }
 modalidade.addEventListener('change', syncModality);
 syncModality();
@@ -171,6 +195,7 @@ function bindServiceDay(row) {
       if (title) title.textContent = 'Dia ' + (index + 1);
     });
     updateLegacyScheduleFields();
+syncConditionalFields();
   });
 }
 
@@ -247,16 +272,16 @@ function buildTeamRuleText() {
   const complete = days.length && days.every(day => day.data && day.horarioInicial && day.horarioFinal);
 
   if (!selected || !complete) {
-    return 'Em demandas mais longas, o GEB pode recomendar mais de 1 intérprete para permitir revezamento. A contratação de profissionais adicionais é opcional.';
+    return 'A quantidade tecnicamente indicada depende do tipo de serviço, da duração e das regras aplicáveis. O sistema registrará a equipe solicitada e a equipe tecnicamente indicada.';
   }
 
   if (recommendation > 1) {
     return 'Para esta programação, o GEB recomenda ' +
       recommendation +
-      ' intérpretes para organização do revezamento. A contratação dessa quantidade é opcional; você pode manter 1 intérprete ou informar uma quantidade maior.';
+      ' intérpretes para esta programação. A proposta registrará essa indicação separadamente da quantidade solicitada.';
   }
 
-  return 'Para esta programação, não há recomendação automática de ampliar a equipe. Você pode contratar 1 intérprete ou informar uma quantidade maior.';
+  return 'Para esta programação, a equipe tecnicamente indicada é de ' + recommendation + ' profissional(is).';
 }
 
 function syncTeamRecommendation() {
@@ -268,7 +293,10 @@ function syncTeamRecommendation() {
 }
 
 document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
-  el.addEventListener('change', syncTeamRecommendation);
+  el.addEventListener('change', () => {
+    syncTeamRecommendation();
+    syncConditionalFields();
+  });
 });
 
 function buildPayload() {
@@ -280,6 +308,12 @@ function buildPayload() {
   const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
 
   const detalhesPartes = [
+    text('nomeAtividade') ? 'Atividade: ' + text('nomeAtividade') : '',
+    modalidadeValue === 'Remota' && text('plataformaRemota') ? 'Plataforma: ' + text('plataformaRemota') : '',
+    modalidadeValue === 'Remota' && text('linkAcessoRemoto') ? 'Link: ' + text('linkAcessoRemoto') : '',
+    isEducationService() && text('instituicaoEnsino') ? 'Instituição de ensino: ' + text('instituicaoEnsino') : '',
+    isEducationService() && text('cursoTurma') ? 'Curso/turma: ' + text('cursoTurma') : '',
+    isEducationService() && (text('periodoInicio') || text('periodoFim')) ? 'Período educacional: ' + text('periodoInicio') + ' a ' + text('periodoFim') : '',
     text('detalhes'),
     'Programação: ' + diasServico.map(day =>
       'Dia ' + day.indice + ': ' + day.data + ' | ' + day.horarioInicial + ' às ' + day.horarioFinal + ' | ' + day.horas + 'h'
@@ -289,7 +323,6 @@ function buildPayload() {
     'Quantidade recomendada pelo GEB: ' + recommendedTeamSize(),
     'Quantidade escolhida pelo cliente: ' + Math.max(1, getNumber('qtdInterpretes') || 1),
     text('publicoSurdo') ? 'Público surdo estimado: ' + text('publicoSurdo') : '',
-    'Histórico com intérpretes: ' + text('historicoInterprete'),
     checked('precisaNf') ? 'Necessita nota fiscal: Sim' : 'Necessita nota fiscal: Não',
     buildEventAddress() ? 'Endereço do serviço: ' + buildEventAddress() : '',
     text('cargoResponsavel') ? 'Cargo/função do responsável: ' + text('cargoResponsavel') : '',
@@ -314,6 +347,14 @@ function buildPayload() {
     servico: serviceLabel(),
     codigoServico: selectedServiceInput()?.value || '',
     modalidade: modalidadeValue,
+    nomeAtividade: text('nomeAtividade'),
+    plataformaRemota: modalidadeValue === 'Remota' ? text('plataformaRemota') : '',
+    linkAcessoRemoto: modalidadeValue === 'Remota' ? text('linkAcessoRemoto') : '',
+    instituicaoEnsino: isEducationService() ? text('instituicaoEnsino') : '',
+    cursoTurma: isEducationService() ? text('cursoTurma') : '',
+    periodoInicio: isEducationService() ? text('periodoInicio') : '',
+    periodoFim: isEducationService() ? text('periodoFim') : '',
+    educacaoRegular: isEducationService(),
     dataServico: primeiroDia.data || '',
     horario: primeiroDia.horarioInicial || '',
     horarioFinal: primeiroDia.horarioFinal || '',
@@ -360,7 +401,6 @@ function buildPayload() {
     temPessoaSurdocega: checked('temPessoaSurdocega'),
     formaPagamento: text('formaPagamento'),
     publicoSurdo: getNumber('publicoSurdo'),
-    historicoInterprete: text('historicoInterprete'),
     orcamentoDisponivel: 0
   };
 }
