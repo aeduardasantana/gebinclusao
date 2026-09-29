@@ -500,6 +500,21 @@
       </fieldset>
     </form>
 
+    <section id="budget-loading" class="budget-loading" hidden aria-live="polite" aria-busy="true">
+      <div class="budget-loading-card">
+        <div class="budget-loading-spinner" aria-hidden="true"></div>
+        <p class="section-kicker">PROCESSANDO ORÇAMENTO</p>
+        <h2>Estamos calculando e preparando sua proposta.</h2>
+        <p class="budget-loading-instruction">Este processo pode levar até 1 minuto. Mantenha esta janela aberta até a conclusão.</p>
+        <div class="budget-loading-time">
+          <strong id="budget-loading-timer">00:00</strong>
+          <span>tempo decorrido</span>
+        </div>
+        <div class="budget-loading-track" aria-hidden="true"><span></span></div>
+        <p id="budget-loading-stage" class="budget-loading-stage">Validando os dados e aplicando as regras do serviço.</p>
+      </div>
+    </section>
+
     <section id="budget-result" class="budget-result" hidden aria-live="polite">
       <p class="section-kicker">Etapa 4 · Resultado</p>
       <div id="result-success" hidden>
