@@ -569,6 +569,7 @@ form.addEventListener('submit', async event => {
     const calculation = requestCalculation(payload);
     payload.valorTotal = calculation.valores.total;
     payload.qtdInterpretes = calculation.qtdInterpretes || payload.qtdInterpretes;
+    payload.calculo = calculation;
 
     const registration = await registerBudget(payload);
 
