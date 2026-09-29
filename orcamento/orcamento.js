@@ -372,20 +372,19 @@ const SERVICE_RULES = {
   'FEP-SIM-ARTCULT': {type:'hour',base:192,team:3,percent:30,streaming:true},
   'FEP-SIM-JUR-ATEND': {type:'hour',base:144,team:2},
   'FEP-SIM-JUR-AUD': {type:'hour',base:192,team:3},
-  'FEP-SIM-CONF-COORD-D': {type:'day',base:1080,team:1,percent:20},
+  'FEP-SIM-CONF-COORD-D': {type:'day6',base:1080,team:1,percent:20},
   'FEP-SIM-CONF-COORD-H': {type:'hour',base:180,team:1,percent:20},
-  'FEP-SIM-CONF-D': {type:'day',base:864,team:2},
-  'FEP-SIM-CONF-H': {type:'hour',base:144,team:2},
+  'FEP-SIM-CONF-D': {type:'day6',base:864,team:2,prepMinHours:1,prepRate:144},
+  'FEP-SIM-CONF-H': {type:'hour',base:144,team:2,prepMinHours:1,prepRate:144},
   'FEP-SIM-LAZER': {type:'hour',base:144,team:2},
   'FEP-SIM-SAUDE': {type:'hour',base:144,team:2,percent:30},
-  'FEP-SIM-SAUDE-CIR': {type:'day',base:500,team:2,percent:30},
+  'FEP-SIM-SAUDE-CIR': {type:'day6',base:500,team:2,percent:30},
   'FEP-SIM-PUBLICO': {type:'rangeHour',base:120,include:2,additional:60,team:2},
   'FEP-SIM-EMP': {type:'hour',base:144,team:2},
   'FEP-SIM-SOCIAL': {type:'hour',base:144,team:2},
   'FEP-PREP-CULT': {type:'fixedPerInterpreter',base:480,team:1},
   'FEP-PED-AVULSA': {type:'hour',base:144,team:2,minHours:4},
   'FEP-LIDER-AUT': {type:'fixedPlusInterpretation',base:250,team:2},
-  'FEP-REMOTO': {type:'percentOfBase',base:0,team:2,percent:30},
 
   'FEP-AV-PROP': {type:'fixed',base:250,team:1},
   'FEP-AV-POL': {type:'perVideo',base:300,team:2},
@@ -401,9 +400,9 @@ const SERVICE_RULES = {
   'FEP-AV-STUDIO': {type:'fixedPlusInterpretation',base:300,team:1},
   'FEP-AV-LIVE': {type:'percentOfBase',base:0,team:2,percent:30},
 
-  'FEP-EDU-BAS': {type:'package',base:2016,team:2},
-  'FEP-EDU-SUP': {type:'package',base:2630.4,team:2},
-  'FEP-EDU-POS': {type:'package',base:3360,team:2}
+  'FEP-EDU-BAS': {type:'educationHour',base:100.80,team:2,prepPercent:0.25,referencePackage:2016,referenceHours:20},
+  'FEP-EDU-SUP': {type:'educationHour',base:131.52,team:2,prepPercent:0.25,referencePackage:2630.40,referenceHours:20},
+  'FEP-EDU-POS': {type:'educationHour',base:168.00,team:2,prepPercent:0.25,referencePackage:3360,referenceHours:20}
 };
 
 function roundMoney(value){ return Math.round((Number(value)+Number.EPSILON)*100)/100; }
@@ -444,11 +443,22 @@ function requestCalculation(payload) {
       }).join(' + '),
       valor:roundMoney(honorarios)
     });
-  } else if (rule.type === 'day') {
-    honorarios = rule.base * team * days;
+  } else if (rule.type === 'day6') {
+    const blocosPorDia = serviceDays.map(day => Math.max(1, Math.ceil(Number(day.horas || 0) / 6)));
+    const totalDiarias = blocosPorDia.reduce((sum, value) => sum + value, 0);
+    honorarios = totalDiarias * rule.base * team;
     memoria.push({
       item:'Honorários profissionais',
-      formula: days + ' diária(s) × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      formula: serviceDays.map((day,index) =>
+        'Dia ' + (index + 1) + ': ' + Number(day.horas || 0) + 'h = ' + blocosPorDia[index] + ' diária(s) de 6h'
+      ).join(' + ') + ' × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(honorarios)
+    });
+  } else if (rule.type === 'educationHour') {
+    honorarios = totalHours * rule.base * team;
+    memoria.push({
+      item:'Honorários profissionais',
+      formula: totalHours + 'h de aulas regulares × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s). Valor-hora proporcional derivado de ' + formatMoney(rule.referencePackage) + ' / ' + rule.referenceHours + 'h semanais',
       valor:roundMoney(honorarios)
     });
   } else if (rule.type === 'rangeHour') {
@@ -499,6 +509,29 @@ function requestCalculation(payload) {
     throw new Error('Esta regra depende de uma atividade-base e ainda exige definição do serviço-base para cálculo automático.');
   }
 
+  let preparacao = 0;
+
+  if (Number(rule.prepMinHours || 0) > 0) {
+    const prepHours = Number(rule.prepMinHours);
+    const prepRate = Number(rule.prepRate || rule.base || 0);
+    preparacao = prepHours * prepRate * team;
+    memoria.push({
+      item:'Preparação / estudo prévio',
+      formula:prepHours + 'h mínima(s) × ' + formatMoney(prepRate) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(preparacao)
+    });
+  }
+
+  if (Number(rule.prepPercent || 0) > 0) {
+    const prepHours = totalHours * Number(rule.prepPercent);
+    preparacao = prepHours * rule.base * team;
+    memoria.push({
+      item:'Preparação / estudo prévio',
+      formula:(Number(rule.prepPercent) * 100) + '% de ' + totalHours + 'h = ' + prepHours.toFixed(2).replace('.', ',') + 'h × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(preparacao)
+    });
+  }
+
   let adicionais = 0;
   if (payload.doencaContagiosa === true && rule.percent > 0) {
     const valor = honorarios * (rule.percent / 100);
@@ -510,10 +543,14 @@ function requestCalculation(payload) {
     adicionais += valor;
     memoria.push({item:'Gravação / streaming',formula:rule.percent + '% sobre honorários',valor:roundMoney(valor)});
   }
+  let descontoRemoto = 0;
   if (String(payload.modalidade).toLowerCase() === 'remota' || String(payload.modalidade).toLowerCase() === 'online') {
-    const valor = honorarios * .30;
-    adicionais += valor;
-    memoria.push({item:'Modalidade remota',formula:'30% sobre honorários',valor:roundMoney(valor)});
+    descontoRemoto = (honorarios + preparacao) * .25;
+    memoria.push({
+      item:'Desconto modalidade remota — política GEB',
+      formula:'25% de desconto sobre honorários + preparação. A referência Febrapils prevê acréscimo de 30%, mas o GEB adota política comercial própria para serviços remotos.',
+      valor:-roundMoney(descontoRemoto)
+    });
   }
 
   let alimentacao = 0;
@@ -563,11 +600,11 @@ function requestCalculation(payload) {
 
   const hospedagem = Number(payload.valorHospedagem || 0);
   const outrosCustos = Number(payload.valorOutrosCustos || 0);
-  const total = honorarios + adicionais + alimentacao + deslocamento + passagem + hospedagem + outrosCustos;
+  const total = honorarios + preparacao + adicionais - descontoRemoto + alimentacao + deslocamento + passagem + hospedagem + outrosCustos;
 
   const antecedencia = Number(payload.diasAntecedencia);
   const fullPayment = Number.isFinite(antecedencia) && antecedencia >= 0 && antecedencia < 3;
-  const baseProfissional = honorarios + adicionais;
+  const baseProfissional = honorarios + preparacao + adicionais - descontoRemoto;
   const sinal = fullPayment ? baseProfissional : baseProfissional * .20;
   const saldo = fullPayment ? 0 : baseProfissional - sinal;
 
@@ -581,7 +618,9 @@ function requestCalculation(payload) {
     diasServico:serviceDays,
     valores:{
       honorarios:roundMoney(honorarios),
+      preparacao:roundMoney(preparacao),
       adicionais:roundMoney(adicionais),
+      descontoRemoto:roundMoney(descontoRemoto),
       alimentacao:roundMoney(alimentacao),
       deslocamento:roundMoney(deslocamento),
       passagem:roundMoney(passagem),
@@ -655,7 +694,9 @@ form.addEventListener('submit', async event => {
     const payment = calculation.pagamento || {};
     document.getElementById('result-values').innerHTML = [
       ['Honorários', formatMoney(values.honorarios)],
+      values.preparacao ? ['Preparação / estudo prévio', formatMoney(values.preparacao)] : null,
       values.adicionais ? ['Adicionais', formatMoney(values.adicionais)] : null,
+      values.descontoRemoto ? ['Desconto modalidade remota', '- ' + formatMoney(values.descontoRemoto)] : null,
       values.alimentacao ? ['Alimentação', formatMoney(values.alimentacao)] : null,
       values.deslocamento ? ['Deslocamento', formatMoney(values.deslocamento)] : null,
       values.passagem ? ['Passagem', formatMoney(values.passagem)] : null,
