@@ -427,6 +427,7 @@ function requestCalculation(payload) {
   const totalHours = serviceDays.reduce((sum, day) => sum + Number(day.horas || 0), 0);
   const days = Math.max(1, serviceDays.length);
   const team = Math.max(1, Number(payload.qtdInterpretes || 1));
+  const memoria = [];
 
   let honorarios = 0;
 
@@ -435,8 +436,21 @@ function requestCalculation(payload) {
       const hours = Math.max(Number(day.horas || 0), Number(rule.minHours || 0));
       return sum + (rule.base * hours * team);
     }, 0);
+    memoria.push({
+      item:'Honorários profissionais',
+      formula: serviceDays.map((day, index) => {
+        const hours = Math.max(Number(day.horas || 0), Number(rule.minHours || 0));
+        return 'Dia ' + (index + 1) + ': ' + hours + 'h × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)';
+      }).join(' + '),
+      valor:roundMoney(honorarios)
+    });
   } else if (rule.type === 'day') {
     honorarios = rule.base * team * days;
+    memoria.push({
+      item:'Honorários profissionais',
+      formula: days + ' diária(s) × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(honorarios)
+    });
   } else if (rule.type === 'rangeHour') {
     honorarios = serviceDays.reduce((sum, day) => {
       const duration = Number(day.horas || 0);
@@ -446,42 +460,76 @@ function requestCalculation(payload) {
       }
       return sum + daily;
     }, 0);
+    memoria.push({
+      item:'Honorários profissionais',
+      formula:'Faixa inicial de ' + rule.include + 'h + horas adicionais, calculadas por dia × ' + team + ' intérprete(s)',
+      valor:roundMoney(honorarios)
+    });
   } else if (rule.type === 'minute') {
     honorarios = rule.base * (totalHours * 60) * team;
+    memoria.push({
+      item:'Honorários profissionais',
+      formula:(totalHours * 60) + ' min × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(honorarios)
+    });
   } else if (rule.type === 'block15') {
-    honorarios = Math.ceil((totalHours * 60) / 15) * rule.base * team;
+    const blocks = Math.ceil((totalHours * 60) / 15);
+    honorarios = blocks * rule.base * team;
+    memoria.push({
+      item:'Honorários profissionais',
+      formula:blocks + ' bloco(s) de 15 min × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',
+      valor:roundMoney(honorarios)
+    });
   } else if (rule.type === 'fixed') {
     honorarios = rule.base * team;
+    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
   } else if (rule.type === 'fixedPerInterpreter') {
     honorarios = rule.base * team;
+    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
   } else if (rule.type === 'perVideo') {
     honorarios = rule.base * team;
+    memoria.push({item:'Honorários profissionais',formula:formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
   } else if (rule.type === 'package') {
     honorarios = rule.base * team;
+    memoria.push({item:'Honorários profissionais',formula:'Referência do serviço ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
   } else if (rule.type === 'fixedPlusInterpretation') {
     honorarios = rule.base * team * days;
+    memoria.push({item:'Honorários profissionais',formula:days + ' dia(s) × ' + formatMoney(rule.base) + ' × ' + team + ' intérprete(s)',valor:roundMoney(honorarios)});
   } else if (rule.type === 'percentOfBase') {
     throw new Error('Esta regra depende de uma atividade-base e ainda exige definição do serviço-base para cálculo automático.');
   }
 
   let adicionais = 0;
   if (payload.doencaContagiosa === true && rule.percent > 0) {
-    adicionais += honorarios * (rule.percent / 100);
+    const valor = honorarios * (rule.percent / 100);
+    adicionais += valor;
+    memoria.push({item:'Adicional',formula:rule.percent + '% sobre honorários',valor:roundMoney(valor)});
   }
   if (payload.gravacaoStreaming === true && rule.streaming === true && rule.percent > 0) {
-    adicionais += honorarios * (rule.percent / 100);
+    const valor = honorarios * (rule.percent / 100);
+    adicionais += valor;
+    memoria.push({item:'Gravação / streaming',formula:rule.percent + '% sobre honorários',valor:roundMoney(valor)});
   }
   if (String(payload.modalidade).toLowerCase() === 'remota' || String(payload.modalidade).toLowerCase() === 'online') {
-    adicionais += honorarios * .30;
+    const valor = honorarios * .30;
+    adicionais += valor;
+    memoria.push({item:'Modalidade remota',formula:'30% sobre honorários',valor:roundMoney(valor)});
   }
 
   let alimentacao = 0;
   if (payload.forneceAlimentacao !== true) {
-    alimentacao = serviceDays.reduce((sum, day) => {
-      const hours = Number(day.horas || 0);
-      if (hours <= 3) return sum;
-      return sum + (Math.ceil(hours / 4) * 50 * team);
-    }, 0);
+    const blocosPorDia = serviceDays.map(day => Number(day.horas || 0) > 3 ? Math.ceil(Number(day.horas || 0) / 4) : 0);
+    const totalBlocos = blocosPorDia.reduce((sum, value) => sum + value, 0);
+    alimentacao = totalBlocos * 50 * team;
+    if (alimentacao > 0) {
+      memoria.push({
+        item:'Alimentação',
+        formula:totalBlocos + ' bloco(s) × R$ 50,00 × ' + team + ' intérprete(s)',
+        valor:roundMoney(alimentacao)
+      });
+    }
+  } else {
+    memoria.push({item:'Alimentação',formula:'Fornecida pelo contratante',valor:0});
   }
 
   let deslocamento = 0;
@@ -489,8 +537,22 @@ function requestCalculation(payload) {
   if (['carro','veiculo','veículo particular'].includes(transporte)) {
     const km = Number(payload.distanciaIdaKm || 0);
     if (km > 0) {
-      deslocamento = km * 2 * 1.5;
-      if (days > 1 && payload.retornoDiario === true) deslocamento *= days;
+      const idas = days > 1 && payload.retornoDiario === true ? days : 1;
+      const voltas = idas;
+      const totalKm = km * (idas + voltas);
+      deslocamento = totalKm * 1.5;
+      memoria.push({
+        item:'Deslocamento',
+        formula:km.toFixed(1).replace('.', ',') + ' km por trecho × ' + idas + ' ida(s) + ' + voltas + ' volta(s) = ' + totalKm.toFixed(1).replace('.', ',') + ' km × R$ 1,50/km',
+        valor:roundMoney(deslocamento)
+      });
+    } else {
+      memoria.push({
+        item:'Deslocamento',
+        formula:'Distância e valor serão calculados no backend a partir do endereço do evento.',
+        valor:0,
+        pendente:true
+      });
     }
   }
 
@@ -512,7 +574,9 @@ function requestCalculation(payload) {
   return {
     sucesso:true,
     qtdInterpretes:team,
+    equipeRecomendada:recommendedTeamSize(),
     cargaHorariaTotal:totalHours,
+    memoria:memoria,
     qtdDias:days,
     diasServico:serviceDays,
     valores:{
