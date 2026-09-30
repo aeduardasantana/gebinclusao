@@ -62,6 +62,43 @@ function validateStep(step) {
       return false;
     }
   }
+
+  if (step === 1) {
+    const code = selectedServiceInput()?.value || '';
+
+    if (AV_PIECE_CODES.includes(code)) {
+      const quantidade = Math.max(0, getNumber('quantidadeVideos'));
+      const duracoes = parseMinutesList('duracoesVideos');
+      const campo = document.getElementById('duracoesVideos');
+
+      if (duracoes.length !== quantidade) {
+        campo.setCustomValidity('Informe uma duração para cada peça/vídeo.');
+        campo.reportValidity();
+        campo.setCustomValidity('');
+        return false;
+      }
+
+      if (duracoes.some(v => v > 1)) {
+        campo.setCustomValidity('Cada peça deve ter duração de até 1 minuto para este cálculo automático.');
+        campo.reportValidity();
+        campo.setCustomValidity('');
+        return false;
+      }
+    }
+
+    if (code === 'FEP-AV-VIDEOCALL') {
+      const atendimentos = parseMinutesList('atendimentosVideochamada');
+      const campo = document.getElementById('atendimentosVideochamada');
+
+      if (!atendimentos.length) {
+        campo.setCustomValidity('Informe a duração de pelo menos um atendimento.');
+        campo.reportValidity();
+        campo.setCustomValidity('');
+        return false;
+      }
+    }
+  }
+
   return true;
 }
 
@@ -99,7 +136,7 @@ function syncConditionalFields() {
   const minBox=document.getElementById('av-minute-fields'),pieceBox=document.getElementById('av-piece-fields'),callBox=document.getElementById('video-call-fields'),baseBox=document.getElementById('activity-base-fields'),avDateBox=document.getElementById('av-date-fields');
   const avWithoutSchedule = avMinute || avPiece || videoCall;
   if(minBox) minBox.hidden=!avMinute; if(pieceBox) pieceBox.hidden=!avPiece; if(callBox) callBox.hidden=!videoCall; if(baseBox) baseBox.hidden=!activityBase; if(avDateBox) avDateBox.hidden=!avWithoutSchedule;
-  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),baseInput=document.getElementById('codigoAtividadeBase'),avDateInput=document.getElementById('dataPrevistaAv'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(baseInput) baseInput.required=activityBase; if(avDateInput) avDateInput.required=avWithoutSchedule;
+  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),pieceDurationsInput=document.getElementById('duracoesVideos'),videoCallInput=document.getElementById('atendimentosVideochamada'),baseInput=document.getElementById('codigoAtividadeBase'),avDateInput=document.getElementById('dataPrevistaAv'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(pieceDurationsInput) pieceDurationsInput.required=avPiece; if(videoCallInput) videoCallInput.required=videoCall; if(baseInput) baseInput.required=activityBase; if(avDateInput) avDateInput.required=avWithoutSchedule;
   const deaf=document.getElementById('deafblind-fields'); if(deaf) deaf.hidden=!checked('temPessoaSurdocega');
   if (healthRiskChoice) {
     healthRiskChoice.hidden = !health;
