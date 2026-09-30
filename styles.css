@@ -1286,3 +1286,68 @@ button{cursor:pointer}
 @media (prefers-reduced-motion:reduce){
   .budget-loading-spinner,.budget-loading-track span{animation:none}
 }
+
+
+/* Destaque da videochamada emergencial e feedback de validação */
+.service-option-emergency{
+  border:2px solid var(--navy);
+  background:#f4f7fb;
+  grid-column:span 2;
+}
+.service-option-emergency .service-badge{
+  display:inline-flex;
+  align-self:flex-start;
+  font-style:normal;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:5px 8px;
+  border:1px solid var(--navy);
+  color:var(--navy);
+  background:#fff;
+}
+.service-option-emergency strong{font-size:21px}
+.video-call-panel{
+  margin-top:20px;
+  padding:22px;
+  border:2px solid var(--navy);
+  background:#f7f9fc;
+}
+.video-call-panel h3{
+  margin:6px 0 8px;
+  font-family:"Inter Tight",sans-serif;
+  font-size:24px;
+}
+.video-call-kicker{
+  margin:0;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.1em;
+  color:var(--navy);
+}
+.video-call-explainer{
+  margin:0 0 18px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.video-call-total{
+  margin-top:12px;
+  padding:12px 14px;
+  border-left:4px solid var(--navy);
+  background:#fff;
+  font-weight:700;
+  color:var(--ink);
+}
+.form-validation-error{
+  margin-top:18px;
+  padding:14px 16px;
+  border-left:5px solid #8d1b1b;
+  background:#fff4f4;
+  color:#6d1111;
+  font-weight:700;
+  line-height:1.5;
+}
+@media(max-width:620px){
+  .service-option-emergency{grid-column:auto}
+}
