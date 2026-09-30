@@ -96,9 +96,10 @@ function syncConditionalFields() {
   const schedule=document.getElementById('service-days'), addDay=document.getElementById('add-service-day'), totalBox=totalServiceHours?.closest('.quote-route-notice');
   if(schedule) schedule.hidden=!scheduleRequired; if(addDay) addDay.closest('.budget-actions').hidden=!scheduleRequired; if(totalBox) totalBox.hidden=!scheduleRequired;
   document.querySelectorAll('.service-day input').forEach(el=>el.required=scheduleRequired);
-  const minBox=document.getElementById('av-minute-fields'),pieceBox=document.getElementById('av-piece-fields'),callBox=document.getElementById('video-call-fields'),baseBox=document.getElementById('activity-base-fields');
-  if(minBox) minBox.hidden=!avMinute; if(pieceBox) pieceBox.hidden=!avPiece; if(callBox) callBox.hidden=!videoCall; if(baseBox) baseBox.hidden=!activityBase;
-  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),baseInput=document.getElementById('codigoAtividadeBase'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(baseInput) baseInput.required=activityBase;
+  const minBox=document.getElementById('av-minute-fields'),pieceBox=document.getElementById('av-piece-fields'),callBox=document.getElementById('video-call-fields'),baseBox=document.getElementById('activity-base-fields'),avDateBox=document.getElementById('av-date-fields');
+  const avWithoutSchedule = avMinute || avPiece || videoCall;
+  if(minBox) minBox.hidden=!avMinute; if(pieceBox) pieceBox.hidden=!avPiece; if(callBox) callBox.hidden=!videoCall; if(baseBox) baseBox.hidden=!activityBase; if(avDateBox) avDateBox.hidden=!avWithoutSchedule;
+  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),baseInput=document.getElementById('codigoAtividadeBase'),avDateInput=document.getElementById('dataPrevistaAv'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(baseInput) baseInput.required=activityBase; if(avDateInput) avDateInput.required=avWithoutSchedule;
   const deaf=document.getElementById('deafblind-fields'); if(deaf) deaf.hidden=!checked('temPessoaSurdocega');
   if (healthRiskChoice) {
     healthRiskChoice.hidden = !health;
@@ -138,6 +139,21 @@ function daysUntil(dateString) {
   today.setHours(0,0,0,0);
   const target = new Date(dateString + 'T00:00:00');
   return Math.ceil((target - today) / 86400000);
+}
+
+function todayIsoLocal() {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0,10);
+}
+
+function applyMinDateRules() {
+  const min = todayIsoLocal();
+  document.querySelectorAll('.service-day-date').forEach(input => {
+    input.min = min;
+  });
+  const avDate = document.getElementById('dataPrevistaAv');
+  if (avDate) avDate.min = min;
 }
 
 function text(id) {
@@ -251,11 +267,13 @@ function addServiceDay() {
   `;
   serviceDays.appendChild(row);
   bindServiceDay(row);
+  applyMinDateRules();
   updateLegacyScheduleFields();
 }
 
 document.querySelectorAll('.service-day').forEach(bindServiceDay);
 addServiceDayButton?.addEventListener('click', addServiceDay);
+applyMinDateRules();
 
 function buildEventAddress() {
   return [
@@ -328,6 +346,8 @@ function buildPayload() {
   const diasServico = getServiceDays();
   const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
   const code = selectedServiceInput()?.value || '';
+  const avWithoutSchedule = AV_MINUTE_CODES.includes(code) || AV_PIECE_CODES.includes(code) || code === 'FEP-AV-VIDEOCALL';
+  const dataReferencia = avWithoutSchedule ? text('dataPrevistaAv') : '';
   const dias = Math.max(1, diasServico.length);
   const primeiroDia = diasServico[0] || {};
   const qtdInt = Math.max(1, getNumber('qtdInterpretes') || 1);
@@ -336,7 +356,7 @@ function buildPayload() {
 
   return {
     requestId: currentRequestId || (currentRequestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+'-'+Math.random().toString(16).slice(2))),
-    versaoPayload: '2026.09-v1',
+    versaoPayload: '2026.09-v2-final',
     nome: text('nome'),
     empresa: text('empresa'),
     documento: text('documento'),
@@ -360,9 +380,9 @@ function buildPayload() {
     duracoesVideosMinutos: AV_PIECE_CODES.includes(code) ? parseMinutesList('duracoesVideos') : [],
     atendimentosVideochamadaMinutos: isVideoCall() ? parseMinutesList('atendimentosVideochamada') : [],
     codigoAtividadeBase: ACTIVITY_BASE_CODES.includes(code) ? text('codigoAtividadeBase') : '',
-    dataServico: primeiroDia.data || '',
-    horario: primeiroDia.horarioInicial || '',
-    horarioFinal: primeiroDia.horarioFinal || '',
+    dataServico: avWithoutSchedule ? dataReferencia : (primeiroDia.data || ''),
+    horario: avWithoutSchedule ? '' : (primeiroDia.horarioInicial || ''),
+    horarioFinal: avWithoutSchedule ? '' : (primeiroDia.horarioFinal || ''),
     duracao: String(duration) + ' hora(s) em ' + dias + ' dia(s)',
     duracaoHoras: duration,
     cargaHorariaTotal: duration,
@@ -382,7 +402,7 @@ function buildPayload() {
 
     doencaContagiosa: checked('doencaContagiosa'),
     gravacaoStreaming: checked('gravacaoStreaming'),
-    diasAntecedencia: daysUntil(primeiroDia.data || ''),
+    diasAntecedencia: daysUntil(avWithoutSchedule ? dataReferencia : (primeiroDia.data || '')),
     observacaoPagamento: text('observacaoPagamento'),
 
     detalhes: detalhesPartes.join('\n'),
