@@ -38,6 +38,22 @@ const TEAM_REF = {'FEP-SIM-PROVA-BAS':2,'FEP-SIM-PROVA-MED':2,'FEP-SIM-PROVA-SUP
 function isVideoCall(){ return selectedServiceInput()?.value === 'FEP-AV-VIDEOCALL'; }
 function parseMinutesList(id){ return text(id).split(';').map(v=>Number(v.trim().replace(',','.'))).filter(v=>Number.isFinite(v)&&v>0); }
 
+function videoCallBlocks(){
+  return Math.max(0, Math.floor(getNumber('quantidadeBlocosVideochamada')));
+}
+
+function updateVideoCallTotal(){
+  const box=document.getElementById('video-call-total');
+  if(!box) return;
+  const blocks=videoCallBlocks();
+  if(!blocks){
+    box.textContent='Informe a quantidade de blocos para ver o tempo contratado.';
+    return;
+  }
+  const minutes=blocks*15;
+  box.textContent=blocks+' bloco(s) de 15 minutos = até '+minutes+' minuto(s) de atendimento.';
+}
+
 function showStep(step) {
   currentStep = step;
   steps.forEach(el => {
@@ -87,13 +103,12 @@ function validateStep(step) {
     }
 
     if (code === 'FEP-AV-VIDEOCALL') {
-      const atendimentos = parseMinutesList('atendimentosVideochamada');
-      const campo = document.getElementById('atendimentosVideochamada');
+      const blocos = videoCallBlocks();
+      const campo = document.getElementById('quantidadeBlocosVideochamada');
 
-      if (!atendimentos.length) {
-        campo.setCustomValidity('Informe a duração de pelo menos um atendimento.');
-        campo.reportValidity();
-        campo.setCustomValidity('');
+      if (!blocos) {
+        showValidationError('Informe quantos blocos de 15 minutos deseja contratar.');
+        campo?.focus();
         return false;
       }
     }
@@ -136,7 +151,7 @@ function syncConditionalFields() {
   const minBox=document.getElementById('av-minute-fields'),pieceBox=document.getElementById('av-piece-fields'),callBox=document.getElementById('video-call-fields'),baseBox=document.getElementById('activity-base-fields'),avDateBox=document.getElementById('av-date-fields');
   const avWithoutSchedule = avMinute || avPiece || videoCall;
   if(minBox) minBox.hidden=!avMinute; if(pieceBox) pieceBox.hidden=!avPiece; if(callBox) callBox.hidden=!videoCall; if(baseBox) baseBox.hidden=!activityBase; if(avDateBox) avDateBox.hidden=!avWithoutSchedule;
-  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),pieceDurationsInput=document.getElementById('duracoesVideos'),videoCallInput=document.getElementById('atendimentosVideochamada'),baseInput=document.getElementById('codigoAtividadeBase'),avDateInput=document.getElementById('dataPrevistaAv'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(pieceDurationsInput) pieceDurationsInput.required=avPiece; if(videoCallInput) videoCallInput.required=videoCall; if(baseInput) baseInput.required=activityBase; if(avDateInput) avDateInput.required=avWithoutSchedule;
+  const minInput=document.getElementById('duracaoConteudoMinutos'),qtyInput=document.getElementById('quantidadeVideos'),pieceDurationsInput=document.getElementById('duracoesVideos'),videoCallBlocksInput=document.getElementById('quantidadeBlocosVideochamada'),baseInput=document.getElementById('codigoAtividadeBase'),avDateInput=document.getElementById('dataPrevistaAv'); if(minInput) minInput.required=avMinute; if(qtyInput) qtyInput.required=avPiece; if(pieceDurationsInput) pieceDurationsInput.required=avPiece; if(videoCallBlocksInput) videoCallBlocksInput.required=videoCall; if(baseInput) baseInput.required=activityBase; if(avDateInput) avDateInput.required=avWithoutSchedule;
   const deaf=document.getElementById('deafblind-fields'); if(deaf) deaf.hidden=!checked('temPessoaSurdocega');
   if (healthRiskChoice) {
     healthRiskChoice.hidden = !health;
@@ -152,7 +167,9 @@ function syncModality() {
 }
 modalidade.addEventListener('change', syncModality);
 document.getElementById('temPessoaSurdocega')?.addEventListener('change', syncConditionalFields);
+document.getElementById('quantidadeBlocosVideochamada')?.addEventListener('input', updateVideoCallTotal);
 syncModality();
+updateVideoCallTotal();
 
 precisaNf.addEventListener('change', () => {
   fiscalFields.hidden = !precisaNf.checked;
@@ -415,7 +432,7 @@ function buildPayload() {
     duracaoConteudoMinutos: AV_MINUTE_CODES.includes(code) ? getNumber('duracaoConteudoMinutos') : 0,
     quantidadeVideos: AV_PIECE_CODES.includes(code) ? Math.max(0,getNumber('quantidadeVideos')) : 0,
     duracoesVideosMinutos: AV_PIECE_CODES.includes(code) ? parseMinutesList('duracoesVideos') : [],
-    atendimentosVideochamadaMinutos: isVideoCall() ? parseMinutesList('atendimentosVideochamada') : [],
+    atendimentosVideochamadaMinutos: isVideoCall() ? Array(videoCallBlocks()).fill(15) : [],
     codigoAtividadeBase: ACTIVITY_BASE_CODES.includes(code) ? text('codigoAtividadeBase') : '',
     dataServico: avWithoutSchedule ? dataReferencia : (primeiroDia.data || ''),
     horario: avWithoutSchedule ? '' : (primeiroDia.horarioInicial || ''),
@@ -530,9 +547,37 @@ async function registerBudget(payload) {
   }
 }
 
+function showValidationError(message){
+  const box=document.getElementById('form-validation-error');
+  if(!box) return;
+  box.textContent=message;
+  box.hidden=false;
+  box.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function clearValidationError(){
+  const box=document.getElementById('form-validation-error');
+  if(!box) return;
+  box.hidden=true;
+  box.textContent='';
+}
+
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  if (!validateStep(3)) return;
+  clearValidationError();
+
+  if (!validateStep(3)) {
+    const fieldset = steps.find(el => Number(el.dataset.step) === 3);
+    const invalid = [...fieldset.querySelectorAll('input,select,textarea')].find(field => !field.closest('[hidden]') && !field.checkValidity());
+    if(invalid){
+      const label = invalid.closest('label')?.childNodes?.[0]?.textContent?.trim() || 'um campo obrigatório';
+      showValidationError('Falta preencher ou corrigir: ' + label + '.');
+      invalid.focus();
+    } else {
+      showValidationError('Revise os campos obrigatórios antes de gerar o orçamento.');
+    }
+    return;
+  }
 
   submitButton.disabled = true;
   submitButton.textContent = 'Processando orçamento...';
