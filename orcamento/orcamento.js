@@ -135,11 +135,22 @@ function isHealthService() {
 }
 
 function syncConditionalFields() {
-  const remote = modalidade.value === 'Remota';
   const education = isEducationService();
   const health = isHealthService();
   const code = selectedServiceInput()?.value || '';
   const avMinute = AV_MINUTE_CODES.includes(code), avPiece = AV_PIECE_CODES.includes(code), videoCall = isVideoCall(), activityBase = ACTIVITY_BASE_CODES.includes(code);
+
+  if (videoCall) {
+    modalidade.value = 'Remota';
+    modalidade.disabled = true;
+  } else {
+    modalidade.disabled = false;
+  }
+
+  const modalidadeNote = document.getElementById('modalidade-note');
+  if (modalidadeNote) modalidadeNote.hidden = !videoCall;
+
+  const remote = modalidade.value === 'Remota';
   const scheduleRequired = !(avMinute || avPiece || videoCall);
 
   presentialFields.hidden = remote;
@@ -396,8 +407,8 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
 });
 
 function buildPayload() {
-  const modalidadeValue = text('modalidade');
   const code = selectedServiceInput()?.value || '';
+  const modalidadeValue = code === 'FEP-AV-VIDEOCALL' ? 'Remota' : text('modalidade');
   const avWithoutSchedule = AV_MINUTE_CODES.includes(code) || AV_PIECE_CODES.includes(code) || code === 'FEP-AV-VIDEOCALL';
   const diasServico = avWithoutSchedule ? [] : getServiceDays();
   const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
