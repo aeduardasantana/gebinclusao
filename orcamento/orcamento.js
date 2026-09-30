@@ -397,10 +397,10 @@ document.querySelectorAll('input[name="codigoServico"]').forEach(el => {
 
 function buildPayload() {
   const modalidadeValue = text('modalidade');
-  const diasServico = getServiceDays();
-  const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
   const code = selectedServiceInput()?.value || '';
   const avWithoutSchedule = AV_MINUTE_CODES.includes(code) || AV_PIECE_CODES.includes(code) || code === 'FEP-AV-VIDEOCALL';
+  const diasServico = avWithoutSchedule ? [] : getServiceDays();
+  const duration = diasServico.reduce((sum, day) => sum + Number(day.horas || 0), 0);
   const dataReferencia = avWithoutSchedule ? text('dataPrevistaAv') : '';
   const dias = Math.max(1, diasServico.length);
   const primeiroDia = diasServico[0] || {};
@@ -532,19 +532,36 @@ function stopBudgetLoading() {
 
 // O cálculo financeiro oficial é realizado exclusivamente pelo backend.
 async function registerBudget(payload) {
-  const response = await fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
-    redirect: 'follow'
-  });
+  async function enviar() {
+    const response = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      redirect: 'follow',
+      cache: 'no-store'
+    });
 
-  const textResponse = await response.text();
-  try {
-    return JSON.parse(textResponse);
-  } catch {
-    throw new Error('O sistema de orçamento respondeu em formato inesperado.');
+    const textResponse = await response.text();
+    try {
+      return JSON.parse(textResponse);
+    } catch {
+      return null;
+    }
   }
+
+  const primeiraResposta = await enviar();
+  if (primeiraResposta) return primeiraResposta;
+
+  // O Apps Script pode concluir o processamento e, ocasionalmente, o navegador
+  // receber uma resposta intermediária do Google que não é JSON.
+  // Repetimos uma única vez com o MESMO requestId. O backend é idempotente:
+  // se a solicitação já foi concluída, ele apenas recupera o orçamento existente.
+  await new Promise(resolve => setTimeout(resolve, 1200));
+
+  const segundaResposta = await enviar();
+  if (segundaResposta) return segundaResposta;
+
+  throw new Error('O orçamento foi enviado, mas a confirmação do sistema não pôde ser exibida. Aguarde alguns segundos e tente novamente; o mesmo pedido não será duplicado.');
 }
 
 function showValidationError(message){
