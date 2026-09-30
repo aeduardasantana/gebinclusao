@@ -271,6 +271,12 @@
 
 
         <div id="activity-base-fields" hidden><div class="quote-route-notice"><strong>Atividade principal da interpretação</strong><p>Este serviço acrescenta uma condição específica a outra atividade de interpretação. Selecione a atividade principal.</p></div><label>Atividade-base<select id="codigoAtividadeBase" name="codigoAtividadeBase"><option value="">Selecione</option><option value="FEP-SIM-PROVA-BAS">Aplicação de provas — nível básico</option><option value="FEP-SIM-PROVA-MED">Aplicação de provas — nível médio</option><option value="FEP-SIM-PROVA-SUP">Aplicação de provas — nível superior</option><option value="FEP-SIM-ARTCULT">Artístico e cultural</option><option value="FEP-SIM-JUR-ATEND">Atendimento jurídico</option><option value="FEP-SIM-JUR-AUD">Audiência jurídica</option><option value="FEP-SIM-CONF-H">Conferência</option><option value="FEP-SIM-LAZER">Lazer e turismo</option><option value="FEP-SIM-SAUDE">Saúde</option><option value="FEP-SIM-SAUDE-CIR">Saúde — ambiente cirúrgico</option><option value="FEP-SIM-PUBLICO">Serviços públicos e sociais</option><option value="FEP-SIM-EMP">Empresarial</option><option value="FEP-SIM-SOCIAL">Social</option><option value="FEP-PED-AVULSA">Atividade pedagógica avulsa</option><option value="FEP-AV-DEBATE">Debate</option><option value="FEP-AV-TV-REC">Programa de TV recorrente</option></select></label></div>
+        <div id="av-date-fields" hidden>
+          <label>Data prevista para execução, atendimento ou entrega
+            <input id="dataPrevistaAv" type="date">
+            <small>Essa data é usada para definir as condições de pagamento e antecedência da contratação.</small>
+          </label>
+        </div>
         <div id="av-minute-fields" hidden><label>Duração do conteúdo audiovisual em minutos<input id="duracaoConteudoMinutos" type="number" min="0.01" step="0.01"></label></div>
         <div id="av-piece-fields" hidden><div class="field-grid two"><label>Quantidade de vídeos/peças<input id="quantidadeVideos" type="number" min="1" step="1"></label><label>Duração de cada peça, em minutos<input id="duracoesVideos" type="text" placeholder="Ex.: 0,5; 1; 0,75"><small>Separe as durações por ponto e vírgula. Cada peça deve ter até 1 minuto.</small></label></div></div>
         <div id="video-call-fields" hidden><label>Duração de cada atendimento, em minutos<input id="atendimentosVideochamada" type="text" placeholder="Ex.: 16; 14; 30"><small>Cada atendimento é arredondado separadamente em blocos de 15 minutos.</small></label></div>
@@ -307,7 +313,7 @@
 
         <div class="field-grid two">
           <label>Quantidade estimada de pessoas surdas
-            <input id="publicoSurdo" name="publicoSurdo" type="number" min="0" step="1" placeholder="Ex.: 4">
+            <input id="publicoSurdo" name="publicoSurdo" type="text" placeholder="Ex.: 4 pessoas surdas; 1 pessoa surdocega e 2 pessoas surdas">
           </label>
           <div class="team-recommendation">
             <span class="field-label">Equipe de intérpretes</span>
