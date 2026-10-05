@@ -1,0 +1,59 @@
+name: Deploy GEB Inclusão
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validar conexão FTP
+        id: ftp
+        shell: bash
+        env:
+          RAW_FTP_HOST: ${{ secrets.HOST }}
+        run: |
+          host="$RAW_FTP_HOST"
+          host="${host#ftp://}"
+          host="${host#ftps://}"
+          host="${host%%/*}"
+          host="${host%%:*}"
+          echo "::add-mask::$host"
+          if [ -z "$host" ]; then
+            echo "::error::O secret HOST está vazio."
+            exit 1
+          fi
+          if ! timeout 8 bash -c "cat < /dev/null > /dev/tcp/$host/21" 2>/dev/null; then
+            echo "::error::Não foi possível alcançar o Host FTP da Locaweb na porta 21. Atualize o secret HOST com o Host exibido em Arquivos e FTP na Central do Cliente."
+            exit 1
+          fi
+          echo "host=$host" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy para Locaweb
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ steps.ftp.outputs.host }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASS }}
+          protocol: ftp
+          port: 21
+          local-dir: "./"
+          server-dir: "./public_html/gebinclusao/"
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**
+            **/vendor/**
+            **/.DS_Store
+            README.md
+            CNAME
