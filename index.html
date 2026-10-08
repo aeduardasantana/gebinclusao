@@ -238,19 +238,47 @@
   </section>
 </main>
 
-<footer class="site-footer">
-  <div class="footer-brand">
-    <img src="https://www.ufmg.br/marca/libras/images/sem_assinatura_64x64.png" alt="Símbolo Acessível em Libras">
-    <div><strong>GEB Inclusão</strong><span>Libras · Acessibilidade · Participação</span></div>
+<footer class="site-footer" aria-label="Rodapé GEB Inclusão">
+  <div class="footer-main">
+    <div class="footer-identity">
+      <a class="footer-logo" href="" aria-label="GEB Inclusão — página inicial"><img src="assets/geb-inclusao-logo.svg" alt="GEB Inclusão"></a>
+      <p>Acessibilidade, Libras e comunicação inclusiva para pessoas, empresas, instituições e comunidades.</p>
+      <a class="footer-back-top" href="#inicio">Voltar ao topo ↑</a>
+    </div>
+    <nav class="footer-nav" aria-label="Navegação do GEB Inclusão">
+      <h2>GEB INCLUSÃO</h2>
+      <a href="#contratar">Intérprete de Libras</a>
+      <a href="orcamento/">Solicitar proposta</a>
+      <a href="#aprender">Cursos de Libras</a>
+      <a href="impacto-social/">Impacto social</a>
+    </nav>
+    <nav class="footer-nav" aria-label="Conexões do ecossistema GEB">
+      <h2>CONEXÕES</h2>
+      <a href="https://gebeducacao.grupoeduardabispo.com.br/catalogo/?q=Libras">GEB Educação</a>
+      <a href="https://gebtecnologia.grupoeduardabispo.com.br/solucoes/?q=Libras">Tecnologias em Libras</a>
+      <a href="impacto-social/">Evangelização em Libras</a>
+      <a href="https://grupoeduardabispo.com.br/">GEB Institucional</a>
+    </nav>
+    <div class="footer-service">
+      <h2>ATENDIMENTO</h2>
+      <a href="tel:+551121105473">(11) 2110-5473</a>
+      <a href="mailto:educacao@grupoeduardabispo.com.br">educacao@grupoeduardabispo.com.br</a>
+      <span>Escritório em Trindade/GO</span>
+      <a class="footer-proposal" href="orcamento/">Solicitar proposta →</a>
+    </div>
   </div>
-  <div class="footer-contact">
-    <a href="tel:+551121105473">(11) 2110-5473</a>
-    <a href="mailto:educacao@grupoeduardabispo.com.br">educacao@grupoeduardabispo.com.br</a>
-    <address><strong>Escritório em Trindade/GO</strong><span>Avenida Serra Morena, 254 - Residencial Solar Embaúba, Trindade - GO, CEP 75383-762</span></address>
+  <div class="footer-bottom">
+    <span>© 2026 GEB | Inclusão. Todos os direitos reservados.</span>
+    <span>Desenvolvido por <a href="https://gebtecnologia.grupoeduardabispo.com.br/" target="_blank" rel="noopener noreferrer">Compass Rose Systems · GEB Tecnologia</a></span>
   </div>
-  <small>© <span id="year"></span> GEB. Todos os direitos reservados.</small>
 </footer>
 
 <script src="script.js"></script>
+<div vw class="enabled" aria-label="Tradutor VLibras">
+  <div vw-access-button class="active"></div>
+  <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>if (window.VLibras && window.VLibras.Widget) { new window.VLibras.Widget('https://vlibras.gov.br/app'); }</script>
 </body>
 </html>
