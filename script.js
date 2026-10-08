@@ -113,3 +113,12 @@ renderImpactSolutions();
 document.getElementById("solution-search")?.addEventListener("input",e=>{
   renderImpactSolutions(e.target.value);
 });
+
+(function normalizeGebFooter(){
+  const footerBottom=document.querySelector('.footer-bottom');
+  if(!footerBottom) return;
+  footerBottom.innerHTML=`
+    <span>© 2026 GEB | Grupo Eduarda Bispo. Todos os direitos reservados.</span>
+    <span>Desenvolvido por <a href="https://gebtecnologia.grupoeduardabispo.com.br/" target="_blank" rel="noopener noreferrer">Compass Rose Systems · GEB Tecnologia</a></span>
+  `;
+})();
