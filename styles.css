@@ -1358,3 +1358,24 @@ button{cursor:pointer}
 
 /* GEB OFFICIAL BRAND 2026 */
 .site-header .brand{display:block;width:210px;height:60px;background:url('assets/geb-inclusao-logo.svg') left center/contain no-repeat;margin-right:auto}.site-header .brand>img,.site-header .brand>span{display:none}.footer-brand img{content:url('assets/geb-inclusao-logo.svg');width:190px;height:auto;border-radius:0}.footer-brand div{display:none}@media(max-width:720px){.site-header .brand{width:170px;height:50px}}
+
+
+/* Rodapé institucional exclusivo do GEB Inclusão */
+.site-footer{display:block;background:#0d0e10;color:#f5f5f5;padding:0 var(--pad);border-top:5px solid #c39727}
+.site-footer .footer-main{display:grid;grid-template-columns:minmax(240px,1.45fr) repeat(2,minmax(155px,.7fr)) minmax(215px,1fr);gap:clamp(24px,4vw,70px);padding:clamp(45px,6vw,85px) 0 60px}
+.site-footer .footer-identity{min-width:0}
+.site-footer .footer-logo{display:inline-block;max-width:220px}
+.site-footer .footer-logo img{display:block;max-width:100%;width:210px;height:auto}
+.site-footer .footer-identity p{font-size:14px;font-weight:400;line-height:1.8;color:#babdc3;max-width:350px;margin:22px 0}
+.site-footer .footer-back-top{display:inline-block;margin-top:10px;padding-bottom:6px;border-bottom:1px solid #6e737b;text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff}
+.site-footer .footer-nav,.site-footer .footer-service{display:flex;flex-direction:column;align-items:flex-start;gap:15px;min-width:0}
+.site-footer .footer-nav h2,.site-footer .footer-service h2{font-family:Inter,sans-serif;font-size:12px;line-height:1.4;font-weight:800;letter-spacing:.12em;color:#c39727;margin:0 0 10px}
+.site-footer a{color:#f1f2f5;text-decoration:none;overflow-wrap:anywhere}
+.site-footer a:hover,.site-footer a:focus-visible{color:#e5bd5c;text-decoration:underline;text-underline-offset:4px}
+.site-footer .footer-nav a,.site-footer .footer-service a,.site-footer .footer-service>span{font-size:13px;line-height:1.6}
+.site-footer .footer-service>span{color:#bcbfc6}
+.site-footer .footer-proposal{margin-top:10px;border:1px solid #bb912c;padding:11px 14px;font-weight:700}
+.site-footer .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px 32px;border-top:1px solid #34373b;padding:22px 0 25px;font-size:11px;line-height:1.7;color:#a7abb3}
+.site-footer .footer-bottom a{font-size:inherit}
+@media(max-width:1050px){.site-footer .footer-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:38px}}
+@media(max-width:600px){.site-footer{padding-left:20px;padding-right:20px}.site-footer .footer-main{grid-template-columns:1fr;gap:30px;padding:42px 0}.site-footer .footer-bottom{display:block}.site-footer .footer-bottom span{display:block;margin-bottom:8px}}
