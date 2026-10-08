@@ -9,7 +9,8 @@ mobileNav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
   mobileNav.hidden=true;
   menuButton.setAttribute('aria-expanded','false');
 }));
-document.getElementById('year').textContent=new Date().getFullYear();
+const yearElement=document.getElementById('year');
+if(yearElement) yearElement.textContent=new Date().getFullYear();
 
 const form=document.getElementById('quote-form');
 const result=document.getElementById('quote-result');
