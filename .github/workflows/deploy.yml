@@ -24,13 +24,13 @@ jobs:
               for token in ('lang="pt-br"','<title','name="description"','rel="canonical"'):
                   if token not in html: errors.append("Home missing "+token)
               if re.search(r'<meta[^>]+name="robots"[^>]+noindex',html): errors.append("Home blocked by noindex")
-              for blob in re.findall(r'<script[^>]+type="application/ld\\+json"[^>]*>(.*?)</script>',html,re.S):
+              for blob in re.findall(r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>',html,re.S):
                   try: json.loads(blob)
                   except ValueError: errors.append("Invalid JSON-LD")
           if files["robots.txt"].is_file():
               robots=files["robots.txt"].read_text(encoding="utf-8")
-              if not re.search(r'^Sitemap:\\s*https://',robots,re.I|re.M): errors.append("robots.txt needs sitemap declaration")
-              if re.search(r'^Disallow:\\s*/\\s*$',robots,re.I|re.M): errors.append("robots.txt blocks all")
+              if not re.search(r'^Sitemap:\s*https://',robots,re.I|re.M): errors.append("robots.txt needs sitemap declaration")
+              if re.search(r'^Disallow:\s*/\s*$',robots,re.I|re.M): errors.append("robots.txt blocks all")
           if files["sitemap.xml"].is_file():
               try:
                   tree=ET.parse(files["sitemap.xml"])
