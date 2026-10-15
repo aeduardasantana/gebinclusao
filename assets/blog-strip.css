@@ -1,0 +1,12 @@
+/* Blog GEB — faixa de artigos da categoria Inclusão */
+.geb-blog-inclusao{padding:64px 0 58px;background:#f4f1ea;border-top:1px solid rgba(11,31,58,.14);color:#0b1f3a;font-family:Inter,Arial,sans-serif}
+.geb-blog-inclusao *{box-sizing:border-box}
+.geb-blog-inclusao__wrap{width:min(1180px,calc(100% - 40px));margin:auto}
+.geb-blog-inclusao__head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:24px}
+.geb-blog-inclusao__eyebrow{font-size:.77rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase;color:#003087;display:block;margin-bottom:10px}
+.geb-blog-inclusao__title{font-size:clamp(1.7rem,3vw,2.35rem);letter-spacing:-.025em;line-height:1.15;margin:0 0 10px;color:#0b1f3a}
+.geb-blog-inclusao__description{font-size:.96rem;color:#656a72;max-width:720px;line-height:1.6;margin:0}
+.geb-blog-inclusao__all{font-size:.92rem;color:#003087!important;font-weight:800;text-decoration:underline!important;text-underline-offset:4px;white-space:nowrap;flex:0 0 auto}
+.geb-blog-inclusao__all:focus-visible{outline:2px solid #003087;outline-offset:4px}
+.geb-blog-inclusao__frame{width:100%;height:410px;display:block;border:0;background:transparent}
+@media(max-width:760px){.geb-blog-inclusao{padding:43px 0}.geb-blog-inclusao__wrap{width:calc(100% - 28px)}.geb-blog-inclusao__head{display:block}.geb-blog-inclusao__all{display:inline-block;margin-top:18px;white-space:normal}.geb-blog-inclusao__frame{height:850px}}
