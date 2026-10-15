@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Pre-deploy SEO audit
         env:
           SITE_DIR: "."
@@ -42,8 +44,6 @@ jobs:
           if errors: sys.exit(1)
           print("Pre-deploy SEO checks passed")
           PY
-      - uses: actions/checkout@v2
-
       - name: FTP Deploy Locaweb
         uses: locaweb/ftp-deploy@1.0.0
         with:
