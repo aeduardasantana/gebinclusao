@@ -41,7 +41,7 @@ fieldset{margin-top:22px;padding:15px 18px;border:1px solid #c6d5dd;border-radiu
 'use strict';
 const $=id=>document.getElementById(id),c=$('art'),ctx=c.getContext('2d'),status=$('status');
 const colors={navy:'#102f49',teal:'#123f43',wine:'#452c41',graphite:'#2b333d'};
-const photo=new Image();photo.decoding='async';photo.src='../INTERPRETE%20DE%20LIBRAS%20EDUARDA%20BISPO3.jpg';let loaded=false;
+const photo=new Image();photo.decoding='async';photo.src='../INTERPRETE%20DE%20LIBRAS%20EDUARDA%20BISPO4.jpg';let loaded=false;
 const logo=new Image();logo.decoding='async';logo.src='../LIBRAS_LOGO.jpg';let logoLoaded=false;logo.onload=()=>{logoLoaded=true;render()};logo.onerror=()=>render();
 photo.onload=()=>{loaded=true;render()};photo.onerror=()=>{loaded=false;status.textContent='A fotografia oficial não pôde ser carregada. O download está indisponível.';render()};
 function hexRgb(v){let n=parseInt(v.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255]}
