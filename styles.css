@@ -1388,3 +1388,18 @@ button{cursor:pointer}
 .impact-solutions .technology-referral{margin-top:32px;padding:clamp(22px,4vw,42px);background:#fff;color:#142038;border-left:5px solid #003087;max-width:850px}
 .impact-solutions .technology-referral p{line-height:1.7}
 .impact-solutions .technology-referral .button{margin-top:12px}
+
+/* Narrativa de fé e Libras - destaque editorial na página de impacto social */
+.faith-story{max-width:var(--max);margin:0 auto;padding:clamp(80px,9vw,128px) var(--pad);display:grid;grid-template-columns:minmax(165px,.32fr) minmax(0,1.68fr);gap:clamp(28px,6vw,96px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.faith-story-label{align-self:start;position:sticky;top:120px}
+.faith-story-label span{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--blue)}
+.faith-story-label p,.faith-story-intro{font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.faith-story-content{max-width:850px}
+.faith-story h2{margin:18px 0 34px;font-family:"Inter Tight",sans-serif;font-size:clamp(38px,4.7vw,68px);line-height:1.05;letter-spacing:-.045em;color:var(--navy)}
+.faith-story-content>p:not(.faith-story-intro){font-size:clamp(16px,1.25vw,18px);line-height:1.85;margin:0 0 22px;color:#343a42}
+.faith-story-content .faith-story-lead{font-size:clamp(19px,1.65vw,24px)!important;line-height:1.65!important;color:var(--navy)!important}
+.faith-story blockquote{margin:42px 0;padding:22px 0 22px 28px;border-left:4px solid var(--blue)}
+.faith-story blockquote p{margin:0;font-family:"Inter Tight",sans-serif;font-size:clamp(26px,3vw,40px);font-weight:700;line-height:1.22;letter-spacing:-.03em;color:var(--navy)}
+.faith-story-content .faith-story-conclusion{margin:30px 0!important;font-weight:800;color:var(--navy)!important}
+.faith-story-link{display:inline-flex;margin-top:16px;padding:15px 0;border-bottom:2px solid var(--blue);font-size:12px;font-weight:800;letter-spacing:.045em;text-transform:uppercase;color:var(--blue)}
+@media(max-width:900px){.faith-story{grid-template-columns:1fr;gap:20px}.faith-story-label{position:static}.faith-story h2{margin-top:12px}}
