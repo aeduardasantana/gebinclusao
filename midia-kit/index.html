@@ -41,7 +41,7 @@ fieldset{margin-top:22px;padding:15px 18px;border:1px solid #c6d5dd;border-radiu
 'use strict';
 const $=id=>document.getElementById(id),c=$('art'),ctx=c.getContext('2d'),status=$('status');
 const colors={navy:'#102f49',teal:'#123f43',wine:'#452c41',graphite:'#2b333d'};
-const photo=new Image();photo.decoding='async';photo.src='../INTERPRETE%20DE%20LIBRAS%20EDUARDA%20BISPO2.jpg';let loaded=false;
+const photo=new Image();photo.decoding='async';photo.src='../INTERPRETE%20DE%20LIBRAS%20EDUARDA%20BISPO2%20-%20Copia.jpg';let loaded=false;
 const logo=new Image();logo.decoding='async';logo.src='../LIBRAS_LOGO.jpg';let logoLoaded=false;logo.onload=()=>{logoLoaded=true;render()};logo.onerror=()=>render();
 photo.onload=()=>{loaded=true;render()};photo.onerror=()=>{loaded=false;status.textContent='A fotografia oficial não pôde ser carregada. O download está indisponível.';render()};
 function hexRgb(v){let n=parseInt(v.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255]}
@@ -53,7 +53,7 @@ function render(){
 const W=1080,H=1350,base=color(),bg=rgb(base);
 ctx.clearRect(0,0,W,H);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 const photoBox={x:390,y:0,w:690,h:1134};
-if(loaded){const ratio=Math.max(photoBox.w/photo.naturalWidth,photoBox.h/photo.naturalHeight);const sw=photoBox.w/ratio,sh=photoBox.h/ratio;const sx=Math.max(0,(photo.naturalWidth-sw)*.42),sy=Math.max(0,(photo.naturalHeight-sh)*.24);ctx.save();ctx.beginPath();ctx.rect(photoBox.x,photoBox.y,photoBox.w,photoBox.h);ctx.clip();ctx.drawImage(photo,sx,sy,sw,sh,photoBox.x,photoBox.y,photoBox.w,photoBox.h);ctx.restore()}
+if(loaded){const ratio=Math.max(photoBox.w/photo.naturalWidth,photoBox.h/photo.naturalHeight);const zoom=1.16,sw=photoBox.w/(ratio*zoom),sh=photoBox.h/(ratio*zoom);const sx=Math.max(0,(photo.naturalWidth-sw)*.42),sy=Math.max(0,(photo.naturalHeight-sh)*.43);ctx.save();ctx.beginPath();ctx.rect(photoBox.x,photoBox.y,photoBox.w,photoBox.h);ctx.clip();ctx.drawImage(photo,sx,sy,sw,sh,photoBox.x,photoBox.y,photoBox.w,photoBox.h);ctx.restore()}
 const fade=ctx.createLinearGradient(0,0,810,0);fade.addColorStop(0,bg);fade.addColorStop(.52,rgb(base,.97));fade.addColorStop(.82,rgb(base,.6));fade.addColorStop(1,rgb(base,0));ctx.fillStyle=fade;ctx.fillRect(0,0,820,1134);
 ctx.fillStyle=bg;ctx.fillRect(0,1134,W,216);
 ctx.fillStyle='#c6dfe8';ctx.fillRect(67,96,98,5);
@@ -67,7 +67,7 @@ let current=695;
 if(event){ctx.fillStyle='#d7eaf3';ctx.font='bold 23px Arial';ctx.fillText('PROGRAMAÇÃO',67,current);current+=55;ctx.fillStyle='#fff';ctx.font='bold 37px Arial';const a=wrap(event,490).slice(0,3);for(const x of a){ctx.fillText(x,67,current);current+=47}current+=16}
 const details=[company,[date,time].filter(Boolean).join('  ·  '),venue].filter(Boolean);if(details.length){if(!event){ctx.fillStyle='#d7eaf3';ctx.font='bold 23px Arial';ctx.fillText('INFORMAÇÕES DO EVENTO',67,current);current+=48}ctx.fillStyle='#fff';ctx.font='25px Arial';for(const val of details){for(const item of wrap(val,485).slice(0,2)){if(current>1060)break;ctx.fillText(item,67,current);current+=35}current+=13}}
 ctx.fillStyle='#e8f0f3';ctx.font='bold 30px Arial';ctx.fillText('GEB INCLUSÃO',67,1220);ctx.fillStyle='#bdd5e1';ctx.font='23px Arial';ctx.fillText('Comunicação  ·  Acesso  ·  Participação',67,1264);
-if(logoLoaded){const size=144,x=898,y=1170;ctx.save();ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2);ctx.fill();ctx.clip();const inner=size-12;const ratio=Math.min(inner/logo.width,inner/logo.height);const w=logo.width*ratio,h=logo.height*ratio;ctx.drawImage(logo,x+(size-w)/2,y+(size-h)/2,w,h);ctx.restore()}
+if(logoLoaded){const size=138,x=900,y=1174;ctx.save();ctx.fillStyle='#fff';ctx.fillRect(x,y,size,size);const pad=8,inner=size-pad*2,ratio=Math.min(inner/logo.naturalWidth,inner/logo.naturalHeight);const w=logo.naturalWidth*ratio,h=logo.naturalHeight*ratio;ctx.drawImage(logo,x+(size-w)/2,y+(size-h)/2,w,h);ctx.restore()}
 }
 function fieldsPresent(){return ['event','company','date','time','venue'].some(id=>$(id).value.trim())}
 ['event','company','date','time','venue','custom'].forEach(id=>$(id).addEventListener('input',()=>{status.textContent='';render()}));
